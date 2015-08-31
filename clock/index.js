@@ -1,4 +1,3 @@
-var animationFrame = require("../animation-frame");
 var events = require("../events");
 
 var lastUpdateTime;
@@ -9,8 +8,6 @@ var Clock = {
   timeout: function(cb, time) {
     setTimeout(cb, time);
   },
-  requestAnimationFrame: animationFrame.request,
-  cancelAnimationFrame: animationFrame.cancel,
   now: (function() {
     if("performance" in window) {
       return function() {return performance.now();}

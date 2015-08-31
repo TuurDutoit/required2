@@ -1,6 +1,7 @@
 var EventEmitter = require("../event-emitter");
 var events = require("../events");
 var clock = require("../clock");
+var animationFrame = require("../animation-frame");
 
 var staticFps = false;
 var fps;
@@ -22,14 +23,14 @@ var timeout = function() {
     timerIsRAF = false;
   }
   else {
-    timer = clock.requestAnimationFrame(loop);
+    timer = animationFrame.request(loop);
     timerIsRAF = true;
   }
 }
 
 var clearTimeout = function() {
   if(timerIsRAF) {
-    clock.cancelAnimationFrame(timer);
+    clock.animationFrame.cancel(timer);
   }
   else {
     clock.clearTimeout(timer);
