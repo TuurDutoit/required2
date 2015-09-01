@@ -2,7 +2,7 @@
 var EventEmitter = function() {
   this._eventemitter = {
     events: {},
-    proxies: {}
+    proxies: []
   }
 }
 
@@ -73,6 +73,14 @@ EventEmitter.prototype.emit = function(event, args) {
       listener.apply(listener.__context__ || null, args);
     }
   }
+  
+  var proxies = this._eventemitter.proxies;
+  for(var i = 0, len = proxies.length; i < len; i++) {
+    var proxy = proxies[i];
+    proxy.exec(this, proxy.other, event, args);
+  }
+  
+  return this;
 }
 
 
@@ -83,6 +91,52 @@ EventEmitter.prototype.listeners = function(event) {
 
 EventEmitter.prototype.count = function(event) {
   return this.listeners(event).length;
+}
+
+
+EventEmitter.prototype.pipe = function(other, exec) {
+  if(typeof exec === "string") {
+    var exec = createPrefixedExec(exec);
+  }
+  else if(typeof exec !== "function") {
+    var exec = defaultExec;
+  }
+  
+  this._eventemitter.proxies.push({other: other, exec: exec});
+  
+  return this;
+}
+
+
+EventEmitter.prototype.pipeFrom = function(other, exec) {
+  other.pipe(this, exec);
+  
+  return this;
+}
+
+
+EventEmitter.prototype.proxy = function(other, execPush, execFrom) {
+  this.pipe(other, execPush);
+  other.pipe(this, execFrom || execPush);
+  
+  return this;
+}
+
+
+
+
+
+
+
+function defaultExec(self, other, event, args) {
+  other.emit(event, args);
+}
+
+
+function createPrefixedExec(prefix) {
+  return function(self, other, event, args) {
+    other.emit(prefix+event, args);
+  }
 }
 
 
