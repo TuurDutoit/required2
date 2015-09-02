@@ -2,6 +2,7 @@ var Vector = require("../vector");
 var Rederer= requite("../draw-canvas");
 
 var Camera = function(obj, D){
+    this.currentScene = null;
     this.active = true;
 	this.displaying = false;
     this.position = obj.position;
@@ -28,6 +29,7 @@ Camera.prototype.deactivate = function(){
         this.active = false;
     }
 }
+//Camera.prototype.changeScene
 Camera.prototype.linkTo = function(obj){
     //Links Camera to gameObject
     this.position = obj.position;

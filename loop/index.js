@@ -6,11 +6,11 @@ module.exports = {
     updateLoop.start();
     drawLoop.start();
   },
-  start: function() {
+  pause: function() {
     updateLoop.pause();
     drawLoop.pause();
   },
-  start: function() {
+  stop: function() {
     updateLoop.stop();
     drawLoop.stop();
   },
