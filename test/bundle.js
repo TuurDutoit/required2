@@ -495,7 +495,7 @@ module.exports = {
 },{"../loop-draw":5,"../loop-update":6}],8:[function(require,module,exports){
 events = require("../events");
 var loop = require("../loop");
-var Game = {
+Game = {
     start: function(){
         loop.start()
     }

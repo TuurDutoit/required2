@@ -1,6 +1,6 @@
 events = require("../events");
 var loop = require("../loop");
-var Game = {
+Game = {
     start: function(){
         loop.start()
     }

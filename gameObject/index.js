@@ -1,9 +1,17 @@
 renderer = require("../rederer")
-var gameObject = function(name, position, dimensions){
+var gameObject = function(name, type, image, position, dimensions, AI){
     this.name = name;
+    this.type = type;
+    this.image = image;
     this.position = position;
     this.dimensions = dimensions;
+    this.AI = AI;
+    
     return this;
+}
+gameObject.prototype.fixedUpdate = function(){
+    this.image.update();
+    this.AI.update();
 }
 gameObject.prototype.update = function(){
 }

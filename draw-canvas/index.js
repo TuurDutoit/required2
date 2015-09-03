@@ -16,4 +16,5 @@ module.exports = {
 	},
     drawSprite: function(image, sheetPosition, sheetDimensions, position, dimensions, rotation){
         context.drawImage(image, sheetPosition.x, sheetPosition.y, sheetDimensions.x, sheetDimensions.y, position.x, posiyion.y, dimensions.x, dimensions.y);
+    }
 }

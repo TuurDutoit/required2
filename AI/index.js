@@ -1,7 +1,27 @@
-var standardAI = function(obj){
-  this.attachedObject = obj;
+var AI = function(list){
+    this.list = list;
+    this.dominant = null;
+    
+    return this;
 }
-standardAI.prototype.uppdate = function(){
+AI.prototype.addAIComponent = function(component){
+    this.list.push(component);
+}
+AI.prototype.makeDominant = function(component){
+    this.dominant = component;
+}
+AI.prototype.removeDominant = function(){
+    this.dominant = null;
+}
+AI.prototype.uppdate = function(gameObject){
+    if(this.dominant){
+        this.dominant.update(gameObject, this);
+    }
+    else{
+        for(i = this.list.length; i > 0; --i) {
+            this.list[i].update(gameObject, this);   
+        }
+    }
 }
     
 module.exports = standardAI;
