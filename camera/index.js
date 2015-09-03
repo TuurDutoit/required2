@@ -1,14 +1,19 @@
 var Vector = require("../vector");
 var Rederer= requite("../draw-canvas");
 
-var Camera = function(obj, D){
+var Camera = function(obj, dimensions, rotation, displayPosition, displayDimension, displayRotation, zoom){
     this.currentScene = null;
     this.active = true;
 	this.displaying = false;
     this.position = obj.position;
-    this.dimensions = D;
-	this.offset = new Vector(0,0);
-	
+    this.dimensions = dimensions;
+    this.rotation = rotation;
+    this.displayPosition = displayPosition;
+    this.displayDimension = displayDimension;
+    this.displayRotation = displayRotation;
+	this.zoom = zoom;
+    this.offset = new Vector(0,0);
+    
     return this;
 }
 Camera.prototype.activate = funtion(){
@@ -35,10 +40,36 @@ Camera.prototype.linkTo = function(obj){
     this.position = obj.position;
 }
 Camera.prototype.reset  = function(){
+    //Resets Camera offset to (0,0)
 	this.offset.reset();
+}
+Camera.prototype.setOffset = function(offset){
+    this.offset = offset;
 }
 Camera.prototype.move  = function(V){
 	this.offset.add(V);
+}
+Camera.prototype.setRotation = function(rotation){
+    this.rotation = rotation;
+}
+Camera.prototype.rotate = function(angle){
+    this.rotation += angle;
+}
+Camera.prototype.zoom = function(toZoom){
+    if(toZoom >= 0){
+        this.zoom *= toZoom;
+    }
+    else{
+        console.log("Invalid zoom!");
+    }
+}
+Camera.prototype.setZoom = function(toZoom){
+    if(toZoom >= 0){
+        this.zoom = toZoom;
+    }
+    else{
+        console.log("Invalid zoom!");
+    }
 }
 Camera.prototype.drawScene = function(scene){
     //Draws the visible scene

@@ -15,11 +15,7 @@ var Terrain = function(matrix, standardBlockSize){
 Terrain.prototype.update = function(){
 }
 Terrain.prototype.draw = function(camera){
-    for (y = matrix.length; y > 0; --y) {
-        for (x = 0; x < matrix.lenght; ++x) {
-            matrix[y][x].Draw(new Vector(x * standardBlockSize, y * standardBlockSize), camera);
-        }
-    }
+    
 }
 
 module.exports = Terrain;

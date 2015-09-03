@@ -11,6 +11,9 @@ module.exports = {
 		canvas.width = D.x;
 		canvas.height= D.y;
 	},
-	drawImage: function(I, P, D, R){
-	}
+	drawImage: function(image, position, dimensions, rotation){
+        context.drawImage(image, position.x, position.y, dimensions.x, dimensions.y);
+	},
+    drawSprite: function(image, sheetPosition, sheetDimensions, position, dimensions, rotation){
+        context.drawImage(image, sheetPosition.x, sheetPosition.y, sheetDimensions.x, sheetDimensions.y, position.x, posiyion.y, dimensions.x, dimensions.y);
 }

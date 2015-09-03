@@ -1,5 +1,6 @@
 //Vector = require("../vector");
-var Block = function(offset, dimensions){
+var Block = function(texture, offset, dimensions){
+    this.texture = texture;
     this.offset = offset;
     this.dimensions = dimensions;    
     return this;

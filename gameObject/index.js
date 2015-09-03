@@ -1,3 +1,4 @@
+renderer = require("../rederer")
 var gameObject = function(name, position, dimensions){
     this.name = name;
     this.position = position;
