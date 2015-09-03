@@ -1,9 +1,7 @@
 events = require("../events");
-var loop-draw = require("../loop");
-var loop-update = requite("../loop-update");
+var loop = require("../loop");
 var Game = {
     start: function(){
-        loop-draw.start(),
-        loop-update.start()
+        loop.start()
     }
 }

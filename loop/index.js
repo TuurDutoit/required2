@@ -1,5 +1,5 @@
-var updateLoop = require("loop-update");
-var drawLoop = require("loop-draw");
+var updateLoop = require("../loop-update");
+var drawLoop = require("../loop-draw");
 
 module.exports = {
   start: function() {
