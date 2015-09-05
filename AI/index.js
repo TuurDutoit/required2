@@ -19,7 +19,6 @@ AI.prototype.update = function(gameObject){
     }
     else{
         for(i = 0; i < this.list.length; i++) {
-            //console.log(this.list);
             this.list[i].update(gameObject, this);   
         }
     }

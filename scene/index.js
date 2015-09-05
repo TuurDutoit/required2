@@ -11,22 +11,20 @@ Scene.prototype.update = function(){
         //console.log(this.sequence[i]);
         this.sequence[i].update();
         this.sequence[i].fixedUpdate();
-        
         //console.log(this.sequence[i]);
-        
     }
 }
 Scene.prototype.draw = function(){
-    //console.log(this.cameras.length);
     for (i = 0; i < this.cameras.length; i++) {
-        //console.log("Drawing Scene 2.5");
         for (e = 0; e < this.sequence.length; e++) {
-            //console.log("Drawing Scene 3");
             this.sequence[e].draw(this.cameras[i]);
         }
     }
 }
+Scene.prototype.addObject = function(obj){
+    this.sequence.push(obj);
+}
 Scene.prototype.addCamera = function(camera){
     this.cameras.push(camera);
-}
+}  
 module.exports = Scene;

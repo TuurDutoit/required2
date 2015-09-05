@@ -2,7 +2,7 @@ renderer = require("../rederer")
 var imageObject = function(object, current){
     this.type = "imageObject";
     this.object = object;
-    this.current= current || "standard";
+    this.current = current || "standard";
     return this;
 }
 imageObject.prototype.update = function(){

@@ -29,7 +29,6 @@ AI.prototype.update = function(gameObject){
     }
     else{
         for(i = 0; i < this.list.length; i++) {
-            //console.log(this.list);
             this.list[i].update(gameObject, this);   
         }
     }
@@ -78,7 +77,6 @@ var Vector = require("../vector");
 var Rederer= require("../draw-canvas");
 
 var Camera = function(obj, dimensions, rotation, displayPosition, displayDimension, displayRotation, zoom){
-    this.currentScene = null;
     this.active = true;
 	this.displaying = false;
     this.position = obj.position;
@@ -92,6 +90,8 @@ var Camera = function(obj, dimensions, rotation, displayPosition, displayDimensi
     
     return this;
 }
+Camera.prototype.update = function(){}
+Camera.prototype.draw = function(){}
 Camera.prototype.activate = function(){
     //Turns Camera On
     if(this.active){
@@ -168,6 +168,9 @@ Camera.prototype.drawScene = function(scene){
             //Draw Camera
         }
     }
+}
+Camera.prototype.drawOnScreen = function(image, position, dimensions, rotation){
+    image.draw(position, dimensions, rotation);
 }
 module.exports = Camera;
 },{"../draw-canvas":8,"../vector":21}],5:[function(require,module,exports){
@@ -259,7 +262,7 @@ events.on("loop:update:start", function() {
 });
 
 events.on("loop:draw:start", function() {
-  lastDrawTime = Clock.now();ç ,n
+  lastDrawTime = Clock.now();
 });
 
 events.on("loop:update", function() {
@@ -895,7 +898,6 @@ module.exports = {
 	},
     clearCanvas: function(){
         context.clearRect(0, 0, canvas.width, canvas.height);  
-        console.log("A?");
     },
 	drawImage: function(image, position, dimensions, rotation){
         context.drawImage(image, position.x, canvas.height - position.y, dimensions.x, dimensions.y);
@@ -1060,20 +1062,31 @@ var EventEmitter = require("../event-emitter");
 module.exports = new EventEmitter();
 },{"../event-emitter":9}],11:[function(require,module,exports){
 renderer = require("../renderer")
-var gameObject = function(name, type, image, position, dimensions, AI){
+var gameObject = function(name, type, image, position, dimensions, depth, children, AI){
     this.name = name;
     this.type = type;
     this.image = image;
     this.position = position;
     this.dimensions = dimensions;
+    this.depth = depth;
+    this.children = children;
     this.AI = AI;
     
     return this;
 }
+gameObject.prototype.start = function(){}
 gameObject.prototype.fixedUpdate = function(){
     //this.image.update();
     this.AI.update(this);
     return this;
+}
+gameObject.prototype.addChild = function(name, child){
+    if(this.children[name]){
+        console.log("Space already occpied.");
+    }
+    else{
+        this.children[name] = child;
+    }
 }
 gameObject.prototype.update = function(){
 }
@@ -2915,25 +2928,22 @@ Scene.prototype.update = function(){
         //console.log(this.sequence[i]);
         this.sequence[i].update();
         this.sequence[i].fixedUpdate();
-        
         //console.log(this.sequence[i]);
-        
     }
 }
 Scene.prototype.draw = function(){
-    //console.log(this.cameras.length);
     for (i = 0; i < this.cameras.length; i++) {
-        //console.log("Drawing Scene 2.5");
         for (e = 0; e < this.sequence.length; e++) {
-            //console.log("Drawing Scene 3");
             this.sequence[e].draw(this.cameras[i]);
         }
     }
 }
-Scene.prototype.addCamera = function(camera){
-    console.log("KAKA");
-    this.cameras.push(camera);
+Scene.prototype.addObject = function(obj){
+    this.sequence.push(obj);
 }
+Scene.prototype.addCamera = function(camera){
+    this.cameras.push(camera);
+}  
 module.exports = Scene;
 },{"../events":10}],19:[function(require,module,exports){
 var events = require("../events");

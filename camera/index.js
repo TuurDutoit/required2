@@ -15,6 +15,8 @@ var Camera = function(obj, dimensions, rotation, displayPosition, displayDimensi
     
     return this;
 }
+Camera.prototype.update = function(){}
+Camera.prototype.draw = function(){}
 Camera.prototype.activate = function(){
     //Turns Camera On
     if(this.active){
@@ -91,5 +93,8 @@ Camera.prototype.drawScene = function(scene){
             //Draw Camera
         }
     }
+}
+Camera.prototype.drawOnScreen = function(image, position, dimensions, rotation){
+    image.draw(position, dimensions, rotation);
 }
 module.exports = Camera;

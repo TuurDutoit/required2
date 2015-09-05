@@ -14,7 +14,6 @@ module.exports = {
 	},
     clearCanvas: function(){
         context.clearRect(0, 0, canvas.width, canvas.height);  
-        console.log("A?");
     },
 	drawImage: function(image, position, dimensions, rotation){
         context.drawImage(image, position.x, canvas.height - position.y, dimensions.x, dimensions.y);
