@@ -92,11 +92,13 @@ events.on("loop:draw:start", function() {
 events.on("loop:update", function() {
   Clock.time = Clock.now();
   Clock.deltaTime.update = Clock.time - lastUpdateTime;
+  lastUpdateTime = Clock.time;
 });
 
 events.on("loop:draw", function() {
   Clock.time = Clock.now();
   Clock.deltaTime.draw = Clock.time - lastDrawTime;
+  lastDrawTime = Clock.time;
 });
 
 
