@@ -27,7 +27,6 @@ Scene.prototype.draw = function(){
     }
 }
 Scene.prototype.addCamera = function(camera){
-    console.log("KAKA");
     this.cameras.push(camera);
 }
 module.exports = Scene;
