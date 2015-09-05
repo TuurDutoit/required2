@@ -16,4 +16,6 @@ Vector.prototype.distance = function(V) {
   return Math.sqrt(this.distance2(V));
 }
 
+
+
 module.exports = Vector;

@@ -1,0 +1,38 @@
+{
+  "name": "required",
+  "version": "0.0.1",
+  "description": "A HTML5 game engine based on CommonJS",
+  "main": "bundle.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TuurDutoit/required2.git"
+  },
+  "keywords": [
+    "require",
+    "commonjs",
+    "html5",
+    "game",
+    "engine"
+  ],
+  "author": "Tuur Dutoit",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TuurDutoit/required2/issues"
+  },
+  "homepage": "https://github.com/TuurDutoit/required2#readme",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-browserify": "^4.0.1",
+    "grunt-contrib-watch": "^0.6.1"
+  },
+  "dependencies": {
+    "rbush": "^1.4.0",
+    "sat": "^0.5.0"
+  }
+}
