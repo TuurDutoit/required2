@@ -27,3 +27,5 @@ build/Release
 node_modules
 
 
+# Other
+test/bundle.js
