@@ -49,6 +49,7 @@ var loop = function() {
 
 var start = function() {
   if(! running) {
+    running = true;
     mod.emit("start");
     loop();
   }
@@ -56,6 +57,7 @@ var start = function() {
 
 var pause = function() {
   if(running) {
+    running = false;
     mod.emit("pause");
     clearTimeout();
   }
@@ -63,6 +65,7 @@ var pause = function() {
 
 var stop = function() {
   if(running) {
+    running = false;
     mod.emit("stop");
     clearTimeout();
   }
@@ -89,7 +92,7 @@ var setFps = function(val) {
 mod.start = start;
 mod.pause = pause;
 mod.stop = stop;
-mod.setFps = setFps;
+mod.fps = setFps;
 
 
 module.exports = mod;
