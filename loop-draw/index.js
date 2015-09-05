@@ -23,7 +23,8 @@ var timeout = function() {
     timerIsRAF = false;
   }
   else {
-    timer = animationFrame.request(loop);
+    //timer = animationFrame.request(loop);
+    timer = window.requestAnimationFrame(loop);
     timerIsRAF = true;
   }
 }

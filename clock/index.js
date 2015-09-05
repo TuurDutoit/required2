@@ -70,7 +70,6 @@ Timer.prototype.stop = function() {
   return this;
 }
 
-
 Clock.Timer = Timer;
 
 Clock.timer = function() {

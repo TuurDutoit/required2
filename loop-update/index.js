@@ -22,7 +22,8 @@ var timeout = function() {
     timerIsRAF = false;
   }
   else {
-    timer = clock.requestAnimationFrame(loop);
+    timer = window.requestAnimationFrame(loop);
+    //timer = clock.requestAnimationFrame(loop);
     timerIsRAF = true;
   }
 }

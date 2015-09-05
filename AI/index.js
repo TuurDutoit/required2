@@ -13,15 +13,16 @@ AI.prototype.makeDominant = function(component){
 AI.prototype.removeDominant = function(){
     this.dominant = null;
 }
-AI.prototype.uppdate = function(gameObject){
+AI.prototype.update = function(gameObject){
     if(this.dominant){
         this.dominant.update(gameObject, this);
     }
     else{
-        for(i = this.list.length; i > 0; --i) {
+        for(i = 0; i < this.list.length; i++) {
+            //console.log(this.list);
             this.list[i].update(gameObject, this);   
         }
     }
 }
     
-module.exports = standardAI;
+module.exports = AI;

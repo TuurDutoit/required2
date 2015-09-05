@@ -1,4 +1,3 @@
-renderer = require("../rederer")
 var sprite = function(name, sheetPosition, sheetDimensions, collider){
     this.type = "sprite";
     this.name = name;

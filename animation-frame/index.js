@@ -4,6 +4,7 @@ var requestAnimationFrame = window.requestAnimationFrame;
 var cancelAnimationFrame = window.cancelAnimationFrame;
 
 if(!requestAnimationFrame) {
+  console.log("Shit Happened!");
   var vendors = ["ms", "moz", "webkit", "o"];
   for(var i = 0, len = vendors.length; i < len; i++) {
     requestAnimationFrame = window[vendors[i]+'RequestAnimationFrame'];

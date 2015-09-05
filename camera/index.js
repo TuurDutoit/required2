@@ -1,8 +1,7 @@
 var Vector = require("../vector");
-var Rederer= requite("../draw-canvas");
+var Rederer= require("../draw-canvas");
 
 var Camera = function(obj, dimensions, rotation, displayPosition, displayDimension, displayRotation, zoom){
-    this.currentScene = null;
     this.active = true;
 	this.displaying = false;
     this.position = obj.position;
@@ -16,7 +15,7 @@ var Camera = function(obj, dimensions, rotation, displayPosition, displayDimensi
     
     return this;
 }
-Camera.prototype.activate = funtion(){
+Camera.prototype.activate = function(){
     //Turns Camera On
     if(this.active){
         console.log("This camera is already active!");
@@ -69,6 +68,14 @@ Camera.prototype.setZoom = function(toZoom){
     }
     else{
         console.log("Invalid zoom!");
+    }
+}
+Camera.prototype.isObjectVisible = function(obj){
+    if((obj.position.x + obj.dimensions.x >= this.position.x) && (obj.position.y + obj.dimensions.y >= this.position.y) && (obj.position.x <= this.position.x + this.dimensions.x) && (obj.position.y <= this.position.y + this.dimensions.y)){
+        return true;
+    }
+    else{
+        return false;
     }
 }
 Camera.prototype.drawScene = function(scene){
