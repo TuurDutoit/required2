@@ -1,5 +1,7 @@
-renderer = require("../rederer")
-var image = function(name, collider){
+var renderer = require("../renderer");
+
+
+var Image = function(name, collider) {
     this.type = "image";
     this.name = name;
     this.loadedImage = null;
@@ -7,11 +9,19 @@ var image = function(name, collider){
     
     return this;
 }
-image.prototype.update = function(){
+
+Image.prototype.update = function() {
+  
 }
-image.prototype.draw = function(position, dimensions, rotation){
-    renderer.drawImage(loadedImage, position, dimension, rotation);
+
+Image.prototype.draw = function(position, dimensions, rotation) {
+  renderer.drawImage(this.loadedImage, position, dimension, rotation);
 }
-image.prototype.load = function(){
+
+Image.prototype.load = function() {
+  
 }
-module.exports = image;
+
+
+
+module.exports = Image;

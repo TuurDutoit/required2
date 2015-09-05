@@ -1,18 +1,30 @@
-var sprite = function(name, sheetPosition, sheetDimensions, collider){
-    this.type = "sprite";
-    this.name = name;
-    this.loadedSheet = null;
-    this.sheetPosition = sheetPosition;
-    this.sheetDimensions = sheetDimensions;
-    this.collider = collider;
-    
-    return this;
+var renderer = require("../renderer");
+
+
+var Sprite = function(name, sheetPosition, sheetDimensions, collider) {
+  this.type = "sprite";
+  this.name = name;
+  this.loadedSheet = null;
+  this.sheetPosition = sheetPosition;
+  this.sheetDimensions = sheetDimensions;
+  this.collider = collider;
+
+  return this;
 }
-sprite.prototype.update = function(){
+
+Sprite.prototype.update = function() {
+  
 }
-sprite.prototype.draw = function(position, dimensions, rotation){
-    renderer.drawImage(loadedImage, sheetPosition, sheetDimensions, position, dimension, rotation);
+
+Sprite.prototype.draw = function(position, dimensions, rotation) {
+  renderer.drawImage(this.loadedSheet, this.sheetPosition, this.sheetDimensions, position, dimensions, rotation);
 }
-sprite.prototype.load = function(){
+
+Sprite.prototype.load = function() {
+  
 }
-module.exports = sprite;
+
+
+
+
+module.exports = Sprite;

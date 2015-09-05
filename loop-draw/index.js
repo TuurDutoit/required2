@@ -23,15 +23,14 @@ var timeout = function() {
     timerIsRAF = false;
   }
   else {
-    //timer = animationFrame.request(loop);
-    timer = window.requestAnimationFrame(loop);
+    timer = animationFrame.request(loop);
     timerIsRAF = true;
   }
 }
 
 var clearTimeout = function() {
   if(timerIsRAF) {
-    clock.animationFrame.cancel(timer);
+    animationFrame.cancel(timer);
   }
   else {
     clock.clearTimeout(timer);

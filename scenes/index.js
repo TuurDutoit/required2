@@ -1,4 +1,6 @@
 var events = require("../events");
+
+
 var Scenes = {
     scenes: [],
     addScene: function(scene){

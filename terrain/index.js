@@ -1,4 +1,6 @@
 Vector = require("../vector");
+
+
 var Terrain = function(matrix, depth, update){
     /** Example Terrain: 
                         [[1,1,1,1,1],
@@ -14,6 +16,7 @@ var Terrain = function(matrix, depth, update){
     
     return this;
 }
+
 Terrain.prototype.start = function(){}
 Terrain.prototype.update = function(){}
 Terrain.prototype.draw = function(camera){

@@ -1,7 +1,7 @@
-Vector = require("../vector");
-var AIComponent  = function(update){
-    this.update = update;
-    return this;
+var AIComponent = function(update) {
+  this.update = update;
+
+  return this;
 }
 
     
