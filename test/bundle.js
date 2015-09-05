@@ -204,7 +204,7 @@ Camera.prototype.drawOnScreen = function(image, position, dimensions, rotation) 
 
 
 module.exports = Camera;
-},{"../renderer":17,"../vector":21}],5:[function(require,module,exports){
+},{"../renderer":17,"../vector":20}],5:[function(require,module,exports){
 var events = require("../events");
 
 var lastUpdateTime;
@@ -943,7 +943,7 @@ module.exports = {
   },
   DOMElement: canvas
 };
-},{"../vector":21}],9:[function(require,module,exports){
+},{"../vector":20}],9:[function(require,module,exports){
 var EventEmitter = function() {
   this._eventemitter = {
     events: {},
@@ -1117,7 +1117,10 @@ gameObject.prototype.start = function() {
 
 gameObject.prototype.fixedUpdate = function() {
   //this.image.update();
-  //this.AI.update(this);
+  console.log(this.AI);
+  if(this.AI){
+    this.AI.update(this);
+  }
   return this;
 }
 
@@ -1131,7 +1134,7 @@ gameObject.prototype.addChild = function(name, child){
 }
 
 gameObject.prototype.update = function() {
-  
+  console.log(this.name);
 }
 
 gameObject.prototype.draw   = function() {
@@ -3039,35 +3042,6 @@ events.on("loop:update", function() {
 });
 module.exports = Scenes;
 },{"../events":10}],20:[function(require,module,exports){
-events = require("../events");
-renderer = require("../renderer");
-Vector = require("../vector");
-scenes = require("../scenes");
-Scene  = require("../scene");
-Camera = require("../camera");
-GameObject = require("../gameObject");
-AI = require("../AI");
-AIComponent = require("../AIComponent");
-var loop = require("../loop");
-Game = {
-    start: function(){
-        loop.start()
-    }
-}
-leTestScene = new Scene("TestScene", [new GameObject("Test", "Test", null, new Vector(0,0), new Vector(100,100), new AI([new AIComponent(function(obj, stuff){
-    obj.move(new Vector(1,0));
-    console.log("Move");
-    console.log(obj);
-})]))]);
-leTestScene.addCamera(new Camera(new GameObject("Test", "Test", null, new Vector(0,0), new Vector(100,100), null), new Vector(300, 300), 0, new Vector(0,0), new Vector(0,0), 0, 0));
-scenes.addScene(leTestScene);
-
-events.on("loop:draw", function() {
-   // renderer.drawRectangle(new Vector(0,0), new Vector(100,100));
-});
-
-document.body.appendChild(renderer.DOMElement);
-},{"../AI":1,"../AIComponent":2,"../camera":4,"../events":10,"../gameObject":11,"../loop":14,"../renderer":17,"../scene":18,"../scenes":19,"../vector":21}],21:[function(require,module,exports){
 var Vector = require("../colliders").Vector;
 
 
@@ -3089,4 +3063,33 @@ Vector.prototype.distance = function(V) {
 
 
 module.exports = Vector;
-},{"../colliders":7}]},{},[20]);
+},{"../colliders":7}],21:[function(require,module,exports){
+events = require("../events");
+renderer = require("../renderer");
+Vector = require("../vector");
+scenes = require("../scenes");
+Scene  = require("../scene");
+Camera = require("../camera");
+GameObject = require("../gameObject");
+AI = require("../AI");
+AIComponent = require("../AIComponent");
+var loop = require("../loop");
+Game = {
+    start: function(){
+        loop.start()
+    }
+}
+leTestScene = new Scene("TestScene", [new GameObject("Test", "Test", null, new Vector(0,0), new Vector(100,100), 0, {}, new AI([new AIComponent(function(obj, stuff){
+    obj.move(new Vector(1,0));
+    console.log("Move");
+    console.log(obj);
+})]))]);
+leTestScene.addCamera(new Camera(new GameObject("Q", "Q", null, new Vector(0,0), new Vector(100,100), null), new Vector(300, 300), 0, new Vector(0,0), new Vector(0,0), 0, 0));
+scenes.addScene(leTestScene);
+
+events.on("loop:draw", function() {
+   // renderer.drawRectangle(new Vector(0,0), new Vector(100,100));
+});
+
+document.body.appendChild(renderer.DOMElement);
+},{"../AI":1,"../AIComponent":2,"../camera":4,"../events":10,"../gameObject":11,"../loop":14,"../renderer":17,"../scene":18,"../scenes":19,"../vector":20}]},{},[21]);

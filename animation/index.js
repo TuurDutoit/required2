@@ -2,7 +2,7 @@ var renderer = require("../renderer");
 
 
 
-var animation = function(sequence, looping) {
+var Animation = function(sequence, looping) {
   this.type = "animation";
   this.name = name;
   this.sequence = sequence;
@@ -12,26 +12,26 @@ var animation = function(sequence, looping) {
   return this;
 }
 
-animation.prototype.update = function() {
+Animation.prototype.update = function() {
   
 }
 
-animation.prototype.draw = function(position, dimensions, rotation) {
+Animation.prototype.draw = function(position, dimensions, rotation) {
   this.sequence[currentFrame].i.draw(position, dimension, rotation);
 }
 
-animation.prototype.load = function() {
+Animation.prototype.load = function() {
   
 }
 
-animation.prototype.getCollider = function() {
+Animation.prototype.getCollider = function() {
     
 }
 
-animation.prototype.reset = function() {
+Animation.prototype.reset = function() {
   this.currentFrame = 0;
 }
 
 
 
-module.exports = animation;
+module.exports = Animation;
