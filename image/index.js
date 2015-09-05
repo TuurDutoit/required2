@@ -22,6 +22,9 @@ Image.prototype.load = function() {
   
 }
 
+Image.prototype.getCollider = function() {
+  return this.collider;
+}
 
 
 module.exports = Image;

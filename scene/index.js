@@ -11,7 +11,7 @@ var Scene = function(name, sequence) {
 
 Scene.prototype.update = function(){
   for (i = 0; i < this.sequence.length; i++) {
-    //console.log(this.sequence[i]);
+    //console.log(this.sequence[i])
     this.sequence[i].update();
     this.sequence[i].fixedUpdate();
     //console.log(this.sequence[i]);

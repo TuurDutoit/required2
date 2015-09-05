@@ -20,7 +20,7 @@ gameObject.prototype.start = function() {
 
 gameObject.prototype.fixedUpdate = function() {
   //this.image.update();
-  console.log(this.AI);
+  //console.log(this.AI);
   if(this.AI){
     this.AI.update(this);
   }
@@ -37,7 +37,7 @@ gameObject.prototype.addChild = function(name, child){
 }
 
 gameObject.prototype.update = function() {
-  console.log(this.name);
+  //console.log(this.name);
 }
 
 gameObject.prototype.draw   = function() {
