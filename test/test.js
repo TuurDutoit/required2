@@ -9,6 +9,7 @@ var GameObject = require("../game-object");
 var AI = require("../ai");
 var AIComponent = require("../ai-component");
 var loop = require("../loop");
+loop.updateFps(1);
 Game = {
     start: function(){
         loop.start()
@@ -19,7 +20,6 @@ leTestScene = new Scene("TestScene", [new GameObject("Test", "Test", null, new V
 })]))]);
 leTestScene.addCamera(new Camera(new GameObject("Q", "Q", null, new Vector(0,0), new Vector(100,100), null), new Vector(300, 300), 0, new Vector(0,0), new Vector(0,0), 0, 0));
 scenes.addScene(leTestScene);
-loop.updateFps(100);
 events.on("loop:draw", function() {
    // renderer.drawRectangle(new Vector(0,0), new Vector(100,100));
 });

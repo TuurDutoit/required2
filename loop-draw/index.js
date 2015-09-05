@@ -43,8 +43,8 @@ var clearTimeout = function() {
 
 
 var loop = function() {
-  mod.emit("draw");
   timeout();
+  mod.emit("draw");
 }
 
 var start = function() {
@@ -75,7 +75,7 @@ var setFps = function(val) {
   if(val === undefined) {
     return fps;
   }
-  else if(typeof fps === "number") {
+  else if(typeof val === "number") {
     fps = val;
     timeoutTime = 1000 / fps;
     staticFps = true;

@@ -1,63 +1,25 @@
-var renderer = require("../renderer");
+var Vector = require("../vector");
 
 
-var gameObject = function(name, type, image, position, dimensions, depth, children, AI){
-  this.name = name;
-  this.type = type;
-  this.image = image;
-  this.position = position;
-  this.dimensions = dimensions;
-  this.depth = depth;
-  this.children = children;
-  this.AI = AI;
 
-  return this;
-}
-
-gameObject.prototype.start = function() {
-  
-}
-
-gameObject.prototype.fixedUpdate = function() {
-  //this.image.update();
-  //console.log(this.AI);
-  if(this.AI){
-    this.AI.update(this);
-  }
-  return this;
-}
-
-gameObject.prototype.addChild = function(name, child){
-  if(this.children[name]){
-    console.log("Space already occupied.");
-  }
-  else{
-    this.children[name] = child;
-  }
-}
-
-gameObject.prototype.update = function() {
-  //console.log(this.name);
-}
-
-gameObject.prototype.draw   = function() {
-  renderer.drawRectangle(this.position, this.dimensions);
-}
-
-gameObject.prototype.move = function(V) {
-  this.position.add(V);
+var GameObject = function(position, dimensions, angle, rotationCenter) {
+  this.position = position || new Vector();
+  this.absolutePosition = 
+  this.dimensions = dimensions|| new Vector();
+  this.angle = angle || 0;
+  this.rotationCenter = rotationCenter || new Vector();
+  this.children = [];
+  this.parent = null;
   
   return this;
 }
 
-gameObject.prototype.distanceToGameObject = function(obj) {
-  return this.position.getDistanceTo(obj.position);
+GameObject.prototype.absolutePosition = function() {
+  return this.parent.absolutePosition().clone().add(this.position);
 }
 
-gameObject.prototype.distanceToGameObjectCubed = function(obj) {
-  return this.position.getDistanceToCubed(obj.position);
-}
+GameObject.prototype
 
 
 
-module.exports = gameObject;
+module.exports = GameObject;
