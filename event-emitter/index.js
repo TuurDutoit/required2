@@ -65,19 +65,9 @@ EventEmitter.prototype.off = function(event, listener) {
 
 
 EventEmitter.prototype.emit = function(event, args) {
-  var listeners = this._eventemitter.events[event];
-  if(listeners) {
-    for(var i = 0; i < listeners.length; i++) {
-      var listener = listeners[i];
-      listener.apply(listener.__context__ || null, args);
-    }
-  }
-  
-  var proxies = this._eventemitter.proxies;
-  for(var i = 0, len = proxies.length; i < len; i++) {
-    var proxy = proxies[i];
-    proxy.exec(this, proxy.other, event, args);
-  }
+  emit(this, event+":before", args);
+  emit(this, event, args);
+  emit(this, event+":after", args);
   
   return this;
 }
@@ -125,7 +115,21 @@ EventEmitter.prototype.proxy = function(other, execPush, execFrom) {
 
 
 
-
+function emit(emitter, event, args) {
+  var listeners = emitter._eventemitter.events[event];
+  if(listeners) {
+    for(var i = 0; i < listeners.length; i++) {
+      var listener = listeners[i];
+      listener.apply(listener.__context__ || null, args);
+    }
+  }
+  
+  var proxies = emitter._eventemitter.proxies;
+  for(var i = 0, len = proxies.length; i < len; i++) {
+    var proxy = proxies[i];
+    proxy.exec(emitter, proxy.other, event, args);
+  }
+}
 
 function defaultExec(self, other, event, args) {
   other.emit(event, args);

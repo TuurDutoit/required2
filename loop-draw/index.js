@@ -3,9 +3,10 @@ var events = require("../events");
 var clock = require("../clock");
 var animationFrame = require("../animation-frame");
 
+var fps = 60;
+var timeoutTime = 1000 / fps;
 var staticFps = false;
-var fps;
-var timeoutTime;
+var running = false;
 var timer;
 var timerIsRAF;
 
@@ -47,18 +48,24 @@ var loop = function() {
 }
 
 var start = function() {
-  mod.emit("start");
-  loop();
+  if(! running) {
+    mod.emit("start");
+    loop();
+  }
 }
 
 var pause = function() {
-  mod.emit("pause");
-  clearTimeout();
+  if(running) {
+    mod.emit("pause");
+    clearTimeout();
+  }
 }
 
 var stop = function() {
-  mod.emit("stop");
-  clearTimeout();
+  if(running) {
+    mod.emit("stop");
+    clearTimeout();
+  }
 }
 
 var setFps = function(val) {
