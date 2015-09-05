@@ -24,4 +24,5 @@ scenes.addScene(leTestScene);
 events.on("loop:draw", function() {
    // renderer.drawRectangle(new Vector(0,0), new Vector(100,100));
 });
-//
+
+document.body.appendChild(renderer.DOMElement);

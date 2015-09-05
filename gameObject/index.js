@@ -20,7 +20,7 @@ gameObject.prototype.start = function() {
 
 gameObject.prototype.fixedUpdate = function() {
   //this.image.update();
-  this.AI.update(this);
+  //this.AI.update(this);
   return this;
 }
 

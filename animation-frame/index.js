@@ -30,6 +30,10 @@ if(! requestAnimationFrame) {
 
 
 module.exports = {
-  request: requestAnimationFrame,
-  cancel: cancelAnimationFrame
+  request: function(cb) {
+    requestAnimationFrame.call(window, cb);
+  },
+  cancel: function(id) {
+    cancelAnimationFrame.call(window, id);
+  }
 }

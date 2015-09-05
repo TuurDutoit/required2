@@ -1,1314 +1,4 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-Vector = require("../vector");
-var AIComponent  = function(update){
-    this.update = update;
-    return this;
-}
-
-    
-module.exports = AIComponent;
-},{"../vector":21}],2:[function(require,module,exports){
-var AI = function(list){
-    this.list = list;
-    this.dominant = null;
-    
-    return this;
-}
-AI.prototype.addAIComponent = function(component){
-    this.list.push(component);
-}
-AI.prototype.makeDominant = function(component){
-    this.dominant = component;
-}
-AI.prototype.removeDominant = function(){
-    this.dominant = null;
-}
-AI.prototype.update = function(gameObject){
-    if(this.dominant){
-        this.dominant.update(gameObject, this);
-    }
-    else{
-        for(i = 0; i < this.list.length; i++) {
-            this.list[i].update(gameObject, this);   
-        }
-    }
-}
-    
-module.exports = AI;
-},{}],3:[function(require,module,exports){
-var clock = require("../clock");
-
-var requestAnimationFrame = window.requestAnimationFrame;
-var cancelAnimationFrame = window.cancelAnimationFrame;
-
-if(!requestAnimationFrame) {
-  console.log("Shit Happened!");
-  var vendors = ["ms", "moz", "webkit", "o"];
-  for(var i = 0, len = vendors.length; i < len; i++) {
-    requestAnimationFrame = window[vendors[i]+'RequestAnimationFrame'];
-    cancelAnimationFrame = window[vendors[i]+'CancelAnimationFrame'] 
-                               || window[vendors[i]+'CancelRequestAnimationFrame'];
-  }
-  
-  
-  if(!requestAnimationFrame) {
-    var lastTime = 0;
-    requestAnimationFrame = function(callback, element) {
-      var currTime = clock.now();
-      var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-      var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
-        timeToCall);
-      lastTime = currTime + timeToCall;
-      return id;
-    }
-    cancelAnimationFrame = function(id) {
-      clearTimeout(id);
-    };
-  }
-}
-
-
-module.exports = {
-  request: requestAnimationFrame,
-  cancel: cancelAnimationFrame
-}
-},{"../clock":5}],4:[function(require,module,exports){
-var Vector = require("../vector");
-var Rederer= require("../draw-canvas");
-
-var Camera = function(obj, dimensions, rotation, displayPosition, displayDimension, displayRotation, zoom){
-    this.active = true;
-	this.displaying = false;
-    this.position = obj.position;
-    this.dimensions = dimensions;
-    this.rotation = rotation;
-    this.displayPosition = displayPosition;
-    this.displayDimension = displayDimension;
-    this.displayRotation = displayRotation;
-	this.zoom = zoom;
-    this.offset = new Vector(0,0);
-    
-    return this;
-}
-Camera.prototype.update = function(){}
-Camera.prototype.draw = function(){}
-Camera.prototype.activate = function(){
-    //Turns Camera On
-    if(this.active){
-        console.log("This camera is already active!");
-    }
-    else{        
-        this.active = true;
-    }
-}
-Camera.prototype.deactivate = function(){
-    //Turns Camera Off
-    if(!this.active){
-        console.log("This camera is already inactive!");
-    }
-    else{        
-        this.active = false;
-    }
-}
-//Camera.prototype.changeScene
-Camera.prototype.linkTo = function(obj){
-    //Links Camera to gameObject
-    this.position = obj.position;
-}
-Camera.prototype.reset  = function(){
-    //Resets Camera offset to (0,0)
-	this.offset.reset();
-}
-Camera.prototype.setOffset = function(offset){
-    this.offset = offset;
-}
-Camera.prototype.move  = function(V){
-	this.offset.add(V);
-}
-Camera.prototype.setRotation = function(rotation){
-    this.rotation = rotation;
-}
-Camera.prototype.rotate = function(angle){
-    this.rotation += angle;
-}
-Camera.prototype.zoom = function(toZoom){
-    if(toZoom >= 0){
-        this.zoom *= toZoom;
-    }
-    else{
-        console.log("Invalid zoom!");
-    }
-}
-Camera.prototype.setZoom = function(toZoom){
-    if(toZoom >= 0){
-        this.zoom = toZoom;
-    }
-    else{
-        console.log("Invalid zoom!");
-    }
-}
-Camera.prototype.isObjectVisible = function(obj){
-    if((obj.position.x + obj.dimensions.x >= this.position.x) && (obj.position.y + obj.dimensions.y >= this.position.y) && (obj.position.x <= this.position.x + this.dimensions.x) && (obj.position.y <= this.position.y + this.dimensions.y)){
-        return true;
-    }
-    else{
-        return false;
-    }
-}
-Camera.prototype.drawScene = function(scene){
-    //Draws the visible scene
-    if(this.active){
-        if(this.position.x - this.dimensions.x < 0){
-            this.position = this.dimensions.x;
-        }
-        if(this.position.y - this.dimensions.y < 0){
-            this.position = this.dimensions.y;
-        }
-        if(this.displaying){
-            //Draw Camera
-        }
-    }
-}
-Camera.prototype.drawOnScreen = function(image, position, dimensions, rotation){
-    image.draw(position, dimensions, rotation);
-}
-module.exports = Camera;
-},{"../draw-canvas":8,"../vector":21}],5:[function(require,module,exports){
-var events = require("../events");
-
-var lastUpdateTime;
-var lastDrawTime;
-
-
-var Clock = {
-  timeout: function(cb, time) {
-    setTimeout(cb, time);
-  },
-  now: (function() {
-    if("performance" in window) {
-      return function() {return performance.now();}
-    }
-    else if("webkitPerformance" in window) {
-      return function() {return webkitPerformance.now();}
-    }
-    else if("now" in Date) {
-      return function() {return Date.now();}
-    }
-    else {
-      return function() {return new Date();}
-    }
-  })(),
-  deltaTime: {},
-}
-
-
-
-var Timer = function(start) {
-  this.time = 0;
-  this.startTime = 0;
-  this.running = false;
-  this.started = false;
-  this.stopped = false;
-  
-  if(start) {
-    this.start();
-  }
-}
-
-Timer.prototype.start = function() {
-  if(!this.running && !this.stopped) {
-    this.startTime = Clock.now();
-    this.running = true;
-    this.started = true;
-  }
-  
-  return this;
-}
-
-Timer.prototype.pause = function() {
-  if(this.running && !this.stopped) {
-    this.time += Clock.now() - this.startTime;
-    this.running = false;
-  }
-  
-  return this;
-}
-
-Timer.prototype.stop = function() {
-  if(!this.stopped) {
-    if(this.running) {
-      this.time += Clock.now() - this.startTime;
-      this.running = false;
-    }
-    this.stopped = true;
-  }
-  
-  return this;
-}
-
-Clock.Timer = Timer;
-
-Clock.timer = function() {
-  return new Timer(true);
-}
-
-
-
-
-
-
-events.on("loop:update:start", function() {
-  lastUpdateTime = Clock.now();
-});
-
-events.on("loop:draw:start", function() {
-  lastDrawTime = Clock.now();
-});
-
-events.on("loop:update", function() {
-  Clock.time = Clock.now();
-  Clock.deltaTime.update = Clock.time - lastUpdateTime;
-});
-
-events.on("loop:draw", function() {
-  Clock.time = Clock.now();
-  Clock.deltaTime.draw = Clock.time - lastDrawTime;
-});
-
-
-
-module.exports = Clock;
-},{"../events":10}],6:[function(require,module,exports){
-// Crash
-// Version 1.1.0 - Copyright 2015 - Tuur Dutoit <me@tuurdutoit.be>
-//
-// Released under the MIT License - https://github.com/TuurDutoit/crash
-//
-// Crash performs optimized 2D collisions, powered by RBush and SAT.js, written in javascript.
-
-
-// Create a UMD wrapper for Crash. Works in:
-//
-//  - Plain browser via global Crash variable
-//  - AMD loader (like require.js)
-//  - Node.js
-
-(function(factory) {
-    "use strict";
-    
-    if(typeof define === "function" && define["amd"]) {
-        define(["RBush","SAT"], factory);
-    }
-    else if(typeof exports === "object") {
-        module.exports = factory(require("rbush"), require("sat"));
-    }
-    else {
-        window.Crash = factory(window.rbush, window.SAT);
-    }
-    
-}(function(RBush, SAT) {
-    "use strict";
-    
-
-    
-    
-    
-    
-    
-    
-    
-    /*************
-     * EXPORTS   *
-     * UTILITIES *
-     *************/
-    
-    
-    var exports = {
-        RBush:       RBush,
-        SAT:         SAT,
-        Vector:      SAT.Vector,
-        V:           SAT.Vector,
-        Response:    SAT.Response,
-        rbush:       null,
-        RESPONSE:    new SAT.Response(),
-        BREAK:       false,
-        MAX_CHECKS:   100,
-        OVERLAP_LIMIT: 0.5,
-        __listeners: [],
-        __notYetInserted: [],
-        __moved: []
-    }
-    
-    
-    
-    
-    
-    exports.extend = function(child, base) {
-        child.prototype = Object.create(base.prototype, {
-            constructor: {
-                value: child,
-                enumerable: false,
-                writable: true,
-                configurable: true
-            }
-        });
-    }
-    
-    exports.reset = function(maxEntries) {
-        this.clear();
-        this.__listeners = [];
-        this.BREAK = false;
-        this.MAX_CHECKS = 100;
-        this.OVERLAP_LIMIT = 0.5;
-        this.RESPONSE.clear();
-        this.init(maxEntries);
-        
-        return this;
-    }
-    
-    exports.onCollision = function(listener) {
-        this.__listeners.push(listener);
-        
-        return this;
-    }
-    
-    exports.offCollision = function(listener) {
-        var index = this.__listeners.indexOf(listener);
-        if(index > -1) {
-            this.__listeners.splice(index, 1);
-        }
-        
-        return this;
-    }
-    
-    exports.__onCollision = function(a, b, res) {
-        for(var i = 0, len = this.__listeners.length; i < len; i++) {
-            this.__listeners[i].call(this, a, b, res, this.cancel);
-        }
-        
-        return this;
-    }
-    
-    exports.cancel = function() {
-        this.BREAK = true;
-        return false;
-    }
-    
-    exports.getTestString = function(type1, type2) {
-        return type1 === "circle" ? (
-            type2 === "circle" ? "testCircleCircle" : "testCirclePolygon"
-        ) : (
-            type2 === "circle" ? "testPolygonCircle" : "testPolygonPolygon"
-        )
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    /***********
-     * EXPORTS *
-     * METHODS *
-     ***********/
-    
-    
-    exports.init = function(maxEntries) {
-        this.rbush = new RBush((maxEntries || 9), [".aabb.x1", ".aabb.y1", ".aabb.x2", ".aabb.y2"]);
-        
-        for(var i = 0, len = this.__notYetInserted.length; i < len; i++) {
-            this.rbush.insert(this.__notYetInserted.pop());
-        }
-        
-        return this;
-    }
-    
-    
-    exports.insert = function(collider) {
-        if(this.rbush) {
-            this.rbush.insert(collider);
-        }
-        else {
-            this.__notYetInserted.push(collider);
-        }
-        
-        return this;
-    }
-    
-    exports.remove = function(collider) {
-        if(this.rbush) {
-            this.rbush.remove(collider);
-        }
-        else {
-            var index = this.__notYetInserted.indexOf(collider);
-            if(index > -1) {
-                this.__notYetInserted.splice(index, 1);
-            }
-        }
-        
-        return this;
-    }
-    
-    exports.all = function() {
-        return this.rbush ? this.rbush.all() : this.__notYetInserted;
-    }
-    
-    var SEARCH_ARRAY = [];
-    exports.search = function(collider) {
-        if(this.rbush) {
-            SEARCH_ARRAY[0] = collider.aabb.x1;
-            SEARCH_ARRAY[1] = collider.aabb.y1;
-            SEARCH_ARRAY[2] = collider.aabb.x2;
-            SEARCH_ARRAY[3] = collider.aabb.y2;
-            var res = this.rbush.search(SEARCH_ARRAY);
-            var index = res.indexOf(collider);
-            if(index > -1) {
-                res.splice(index, 1);
-            }
-            
-            return res;
-        }
-        else {
-            return [];
-        }
-    }
-    
-    exports.clear = function() {
-        if(this.rbush) {
-            this.rbush.clear();
-        }
-        this.__moved = [];
-        this.__notYetInserted = [];
-        
-        return this;
-    }
-    
-    
-    exports.addToMoved = function(collider) {
-        if(this.__moved.indexOf(collider) === -1) {
-            this.__moved.push(collider);
-        }
-        
-        return this;
-    }
-    
-    exports.update = function(collider) {
-        this.updateAABB(collider);
-        this.remove(collider);
-        this.insert(collider);
-        
-        return this;
-    }
-    
-    exports.moved = function(collider) {
-        this.update(collider);
-        this.addToMoved(collider);
-        
-        return this;
-    }
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    /****************
-    * AABB UPDATES *
-    ****************/
-    
-    
-    exports.updateAABB = function(collider) {
-        switch(collider.type) {
-            case "polygon":
-                return exports.updateAABBPolygon(collider);
-                break;
-            case "box":
-                return exports.updateAABBBox(collider);
-                break;
-            case "circle":
-                return exports.updateAABBCircle(collider);
-                break;
-            case "point":
-                return exports.updateAABBPoint(collider);
-                break;
-        }
-    }
-    
-    exports.updateAABBPolygon = function(collider) {
-        var aabb = collider.aabb;
-        var pos = collider.sat.pos;
-        var points = collider.sat.calcPoints;
-        var len = points.length;
-        var xMin = points[0].x;
-        var yMin = points[0].y;
-        var xMax = points[0].x;
-        var yMax = points[0].y;
-        for (var i = 1; i < len; i++) {
-            var point = points[i];
-            if (point.x < xMin) {
-                xMin = point.x;
-            }
-            else if (point.x > xMax) {
-                xMax = point.x;
-            }
-            if (point.y < yMin) {
-                yMin = point.y;
-            }
-            else if (point.y > yMax) {
-                yMax = point.y;
-            }
-        }
-        
-        aabb.x1 = pos.x + xMin;
-        aabb.y1 = pos.y + yMin;
-        aabb.x2 = pos.x + xMax;
-        aabb.y2 = pos.y + yMax;
-    }
-    
-    exports.updateAABBBox = function(collider) {
-        var points = collider.sat.calcPoints;
-        var aabb = collider.aabb;
-        
-        aabb.x1 = points[0].x;
-        aabb.y1 = points[0].y;
-        aabb.x2 = points[2].x;
-        aabb.y2 = points[2].y;
-    }
-    
-    exports.updateAABBCircle = function(collider) {
-        var aabb = collider.aabb;
-        var r = collider.sat.r;
-        var center = collider.sat.pos;
-
-        aabb.x1 = center.x - r;
-        aabb.y1 = center.y - r;
-        aabb.x2 = center.x + r;
-        aabb.y2 = center.y + r;
-    }
-    
-    exports.updateAABBPoint = function(collider) {
-        var aabb = collider.aabb;
-        var pos = collider.sat.pos;
-        
-        aabb.x1 = aabb.x2 = pos.x;
-        aabb.y1 = aabb.y2 = pos.x;
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    /*********
-     * TESTS *
-     *********/
-    
-    exports.test = function(a, b, res) {
-        var res = res || this.RESPONSE;
-        var str = this.getTestString(a.type, b.type);
-        
-        res.clear();
-        return SAT[str](a.sat, b.sat, res);
-    }
-    
-    
-    exports.testAll = function(a, res) {
-        var res = res || this.RESPONSE;
-        var possible = this.search(a);
-        
-        loop:
-        for(var i = 0, len = possible.length; i < len; i++) {
-            var b = possible[i];
-            var str = this.getTestString(a.type, b.type);
-            res.clear();
-            
-            if(SAT[str](a.sat, b.sat, res)) {
-                // Fix collisions with infinitely small overlaps causing way too many loops
-                if( (this.OVERLAP_LIMIT && Math.abs(res.overlap) > this.OVERLAP_LIMIT) || !this.OVERLAP_LIMIT) {
-                    this.__onCollision(a, b, res);
-                    if(this.BREAK) {
-                        break loop;
-                    }
-                }
-            }
-        }
-        
-        a.lastPos.copy(a.pos);
-        
-        var cancelled = this.BREAK;
-        this.BREAK = false;
-        
-        return !cancelled;
-    }
-    
-    
-    var ALL_MOVED = []; // holds all the colliders that have moved during check(), so we can set their lastCheckedPos
-    exports.check = function(res) {
-        var i = 0;
-        while(this.__moved.length && i < this.MAX_CHECKS) {
-            var collider = this.__moved.pop();
-            var index = ALL_MOVED.indexOf(collider);
-            if(index === -1) {
-                ALL_MOVED.push(collider);
-            }
-            
-            this.testAll(collider, res);
-            i++;
-        }
-        
-        for(var i = 0, len = ALL_MOVED.length; i < len; i++) {
-            ALL_MOVED[i].lastCheckedPos.copy(ALL_MOVED[i].pos);
-        }
-        ALL_MOVED.splice(0, ALL_MOVED.length);
-        
-        return this;
-    }
-    
-    exports.checkAll = function(res) {
-        var all = this.all();
-        for(var i = 0, len = all.length; i < len; i++) {
-            this.testAll(all[i], res);
-        }
-        this.check(res);
-        
-        return this;
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    /***********
-     * CLASSES *
-     ***********/
-    
-    var Collider = exports.Collider = function Collider(type, sat, insert, data) {
-        this.type = type;
-        this.sat = sat;
-        this.data = data;
-        this.pos = this.sat.pos;
-        this.lastPos = this.pos.clone();
-        this.lastCheckedPos = this.pos.clone();
-        this.aabb = {};
-        
-        exports.updateAABB(this);
-        
-        if(insert) {
-            exports.insert(this);
-        }
-        
-        return this;
-    }
-    
-    Collider.prototype.insert = function() {
-        exports.insert(this);
-        
-        return this;
-    }
-    
-    Collider.prototype.remove = function() {
-        exports.remove(this);
-        
-        return this;
-    }
-    
-    Collider.prototype.update = function() {
-        exports.update(this);
-        
-        return this;
-    }
-    
-    Collider.prototype.updateAABB = function() {
-        exports.updateAABB(this);
-        
-        return this;
-    }
-    
-    Collider.prototype.moved = function() {
-        exports.moved(this);
-        
-        return this;
-    }
-    
-    Collider.prototype.search = function() {
-        return exports.search(this);
-    }
-    
-    Collider.prototype.setData = function(data) {
-        this.data = data;
-        
-        return this;
-    }
-    
-    Collider.prototype.getData = function() {
-        return this.data;
-    }
-    
-    Collider.prototype.moveTo = function(x, y) {
-        this.sat.pos.x = x;
-        this.sat.pos.y = y;
-        this.moved();
-        
-        return this;
-    }
-    
-    Collider.prototype.moveBy = Collider.prototype.move = function(x, y) {
-        this.sat.pos.x += x;
-        this.sat.pos.y += y;
-        this.moved();
-        
-        return this;
-    }
-    
-    
-    
-    
-    
-    
-    var Polygon = exports.Polygon = function Polygon(pos, points, insert, data) {
-        var sat = new SAT.Polygon(pos, points);
-        Collider.call(this, "polygon", sat, insert, data);
-        
-        return this;
-    }
-    
-    exports.extend(Polygon, Collider);
-    
-    Polygon.prototype.setPoints = function(points) {
-        this.sat.setPoints(points);
-        this.moved();
-        
-        return this;
-    }
-    
-    Polygon.prototype.setAngle = function(angle) {
-        this.sat.setAngle(angle);
-        this.moved();
-        
-        return this;
-    }
-    
-    Polygon.prototype.setOffset = function(offset) {
-        this.sat.setOffset(offset);
-        this.moved();
-        
-        return this;
-    }
-    
-    Polygon.prototype.rotate = function(angle) {
-        this.sat.rotate(angle);
-        this.moved();
-        
-        return this;
-    }
-    
-    
-    
-    
-    var Circle = exports.Circle = function Circle(pos, r, insert, data) {
-        var sat = new SAT.Circle(pos, r);
-        Collider.call(this, "circle", sat, insert, data);
-        
-        return this;
-    }
-    
-    exports.extend(Circle, Collider);
-    
-    
-    
-    
-    
-    var Point = exports.Point = function Point(pos, insert, data) {
-        var sat = (new SAT.Box(pos, 1, 1)).toPolygon();
-        Collider.call(this, "point", sat, insert, data);
-        
-        return this;
-    }
-    
-    exports.extend(Point, Collider);
-    
-    
-    
-    
-    
-    var Box = exports.Box = function Box(pos, w, h, insert, data) {
-        var sat = (new SAT.Box(pos, w, h)).toPolygon();
-        Collider.call(this, "box", sat, insert, data);
-        
-        return this;
-    }
-    
-    exports.extend(Box, Collider);
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    return exports;
-    
-    
-    
-    
-    
-}));
-},{"rbush":15,"sat":16}],7:[function(require,module,exports){
-module.exports = require("./crash");
-},{"./crash":6}],8:[function(require,module,exports){
-//Vector = require("../vector");
-var canvas = document.createElement('canvas');
-canvas.width   = 300;
-canvas.height  = 300;
-var context	   = canvas.getContext("2d"); 
-document.body.appendChild(canvas);
-module.exports = {
-    canvasDimensions: function(){
-        //return Vector(canvas.width, canvas.height);
-    },
-	changeCanvasDimensions: function(D){
-		canvas.width = D.x;
-		canvas.height= D.y;
-	},
-    clearCanvas: function(){
-        context.clearRect(0, 0, canvas.width, canvas.height);  
-    },
-	drawImage: function(image, position, dimensions, rotation){
-        context.drawImage(image, position.x, canvas.height - position.y, dimensions.x, dimensions.y);
-	},
-    drawSprite: function(image, sheetPosition, sheetDimensions, position, dimensions, rotation){
-        context.drawImage(image, sheetPosition.x, sheetPosition.y, sheetDimensions.x, sheetDimensions.y, position.x, canvas.height - position.y, dimensions.x, dimensions.y);
-    },
-    drawRectangle: function(position, dimensions){
-        context.fillRect(position.x, canvas.height - position.y - dimensions.y,dimensions.x,dimensions.y);
-    }
-};
-},{}],9:[function(require,module,exports){
-var EventEmitter = function() {
-  this._eventemitter = {
-    events: {},
-    proxies: []
-  }
-}
-
-
-EventEmitter.prototype.on = function(event, listener, context) {
-  var listeners = this._eventemitter.events[event];
-  listener.__context__ = context || null;
-  if(! listeners) {
-    var listeners = this._eventemitter.events[event] = [];
-  }
-  listeners.push(listener);
-  
-  return this;
-}
-
-
-EventEmitter.prototype.once = function(event, listener, context) {
-  var self = this;
-  var cb = function() {
-    listener.apply(this, arguments);
-    self.off(event, cb);
-  }
-  this.on(event, cb, context);
-  
-  return this;
-}
-
-
-EventEmitter.prototype.many = function(event, listener, amount, context) {
-  var self = this;
-  var count = 0;
-  var cb = function() {
-    listener.apply(this, arguments);
-    count++;
-    if(count === amount) {
-      self.off(event, cb);
-    }
-  }
-  this.on(event, cb, context);
-  
-  return this;
-}
-
-
-EventEmitter.prototype.off = function(event, listener) {
-  var listeners = this._eventemitter.events[event];
-  if(listeners) {
-    if(listener) {
-      var index = listeners.indexOf(listener);
-      if(index !== -1) {
-        listeners.splice(index, 1);
-      }
-    }
-    else {
-      listeners.length = 0;
-    }
-  }
-  
-  return this;
-}
-
-
-EventEmitter.prototype.emit = function(event, args) {
-  var listeners = this._eventemitter.events[event];
-  if(listeners) {
-    for(var i = 0; i < listeners.length; i++) {
-      var listener = listeners[i];
-      listener.apply(listener.__context__ || null, args);
-    }
-  }
-  
-  var proxies = this._eventemitter.proxies;
-  for(var i = 0, len = proxies.length; i < len; i++) {
-    var proxy = proxies[i];
-    proxy.exec(this, proxy.other, event, args);
-  }
-  
-  return this;
-}
-
-
-EventEmitter.prototype.listeners = function(event) {
-  return this._eventemitter.events[event] || [];
-}
-
-
-EventEmitter.prototype.count = function(event) {
-  return this.listeners(event).length;
-}
-
-
-EventEmitter.prototype.pipe = function(other, exec) {
-  if(typeof exec === "string") {
-    var exec = createPrefixedExec(exec);
-  }
-  else if(typeof exec !== "function") {
-    var exec = defaultExec;
-  }
-  
-  this._eventemitter.proxies.push({other: other, exec: exec});
-  
-  return this;
-}
-
-
-EventEmitter.prototype.pipeFrom = function(other, exec) {
-  other.pipe(this, exec);
-  
-  return this;
-}
-
-
-EventEmitter.prototype.proxy = function(other, execPush, execFrom) {
-  this.pipe(other, execPush);
-  other.pipe(this, execFrom || execPush);
-  
-  return this;
-}
-
-
-
-
-
-
-
-function defaultExec(self, other, event, args) {
-  other.emit(event, args);
-}
-
-
-function createPrefixedExec(prefix) {
-  return function(self, other, event, args) {
-    other.emit(prefix+event, args);
-  }
-}
-
-
-
-
-
-
-module.exports = EventEmitter;
-},{}],10:[function(require,module,exports){
-var EventEmitter = require("../event-emitter");
-
-module.exports = new EventEmitter();
-},{"../event-emitter":9}],11:[function(require,module,exports){
-renderer = require("../renderer")
-var gameObject = function(name, type, image, position, dimensions, depth, children, AI){
-    this.name = name;
-    this.type = type;
-    this.image = image;
-    this.position = position;
-    this.dimensions = dimensions;
-    this.depth = depth;
-    this.children = children;
-    this.AI = AI;
-    
-    return this;
-}
-gameObject.prototype.start = function(){}
-gameObject.prototype.fixedUpdate = function(){
-    //this.image.update();
-    this.AI.update(this);
-    return this;
-}
-gameObject.prototype.addChild = function(name, child){
-    if(this.children[name]){
-        console.log("Space already occpied.");
-    }
-    else{
-        this.children[name] = child;
-    }
-}
-gameObject.prototype.update = function(){
-}
-gameObject.prototype.draw   = function(){
-    renderer.drawRectangle(this.position, this.dimensions);
-}
-gameObject.prototype.move = function(V){
-    this.position.add(V);
-    return this;
-}
-gameObject.prototype.distanceToGameObject = function(obj){
-    return this.position.getDistanceTo(obj.position);
-}
-gameObject.prototype.distanceToGameObjectCubed = function(obj){
-    return this.position.getDistanceToCubed(obj.position);
-}
-
-module.exports = gameObject;
-},{"../renderer":17}],12:[function(require,module,exports){
-var EventEmitter = require("../event-emitter");
-var events = require("../events");
-var clock = require("../clock");
-var animationFrame = require("../animation-frame");
-
-var staticFps = false;
-var fps;
-var timeoutTime;
-var timer;
-var timerIsRAF;
-
-
-var mod = new EventEmitter();
-mod.pipe(events, function(self, other, event, args) {
-  var e = event === "draw" ? "loop:draw" : "loop:draw:" + event;
-  other.emit(e, args);
-});
-
-
-var timeout = function() {
-  if(staticFps) {
-    timer = clock.timeout(loop, timeoutTime);
-    timerIsRAF = false;
-  }
-  else {
-    //timer = animationFrame.request(loop);
-    timer = window.requestAnimationFrame(loop);
-    timerIsRAF = true;
-  }
-}
-
-var clearTimeout = function() {
-  if(timerIsRAF) {
-    clock.animationFrame.cancel(timer);
-  }
-  else {
-    clock.clearTimeout(timer);
-  }
-}
-
-
-
-
-
-var loop = function() {
-  mod.emit("draw");
-  timeout();
-}
-
-var start = function() {
-  mod.emit("start");
-  loop();
-}
-
-var pause = function() {
-  mod.emit("pause");
-  clearTimeout();
-}
-
-var stop = function() {
-  mod.emit("stop");
-  clearTimeout();
-}
-
-var setFps = function(val) {
-  if(val === undefined) {
-    return fps;
-  }
-  else if(typeof fps === "number") {
-    fps = val;
-    timeoutTime = 1000 / fps;
-    staticFps = true;
-    mod.emit("fps", [true, val]);
-  }
-  else {
-    staticFps = false;
-    mod.emit("fps", [false, val]);
-  }
-}
-
-
-
-mod.start = start;
-mod.pause = pause;
-mod.stop = stop;
-mod.setFps = setFps;
-
-
-module.exports = mod;
-},{"../animation-frame":3,"../clock":5,"../event-emitter":9,"../events":10}],13:[function(require,module,exports){
-var EventEmitter = require("../event-emitter");
-var events = require("../events");
-var clock = require("../clock");
-
-var fps = 60;
-var timeoutTime = 1000 / fps;
-var staticFps = true;
-var timer;
-var timerIsRAF;
-
-
-var mod = new EventEmitter();
-mod.pipe(events, function(self, other, event, args) {
-  var e = event === "update" ? "loop:update" : "loop:update:" + event;
-  other.emit(e, args);
-});
-
-
-var timeout = function() {
-  if(staticFps) {
-    timer = clock.timeout(loop, timeoutTime);
-    timerIsRAF = false;
-  }
-  else {
-    timer = window.requestAnimationFrame(loop);
-    //timer = clock.requestAnimationFrame(loop);
-    timerIsRAF = true;
-  }
-}
-
-var clearTimeout = function() {
-  if(timerIsRAF) {
-    clock.cancelAnimationFrame(timer);
-  }
-  else {
-    clock.clearTimeout(timer);
-  }
-}
-
-
-
-
-
-var loop = function() {
-  mod.emit("update");
-  timeout();
-}
-
-var start = function() {
-  mod.emit("start");
-  loop();
-}
-
-var pause = function() {
-  mod.emit("pause");
-  clearTimeout();
-}
-
-var stop = function() {
-  mod.emit("stop");
-  clearTimeout();
-}
-
-var setFps = function(val) {
-  if(val === undefined) {
-    return fps;
-  }
-  else if(typeof fps === "number") {
-    fps = val;
-    timeoutTime = 1000 / fps;
-    staticFps = true;
-    mod.emit("fps", [true, val]);
-  }
-  else {
-    staticFps = false;
-    mod.emit("fps", [false, val]);
-  }
-}
-
-
-
-mod.start = start;
-mod.pause = pause;
-mod.stop = stop;
-mod.setFps = setFps;
-
-
-module.exports = mod;
-},{"../clock":5,"../event-emitter":9,"../events":10}],14:[function(require,module,exports){
-var updateLoop = require("../loop-update");
-var drawLoop = require("../loop-draw");
-
-module.exports = {
-  start: function() {
-    updateLoop.start();
-    drawLoop.start();
-  },
-  pause: function() {
-    updateLoop.pause();
-    drawLoop.pause();
-  },
-  stop: function() {
-    updateLoop.stop();
-    drawLoop.stop();
-  },
-  updateFps: function(val) {
-    updateLoop.fps(val);
-  },
-  drawFps: function(val) {
-    drawLoop.fps(val);
-  }
-}
-},{"../loop-draw":12,"../loop-update":13}],15:[function(require,module,exports){
 /*
  (c) 2013, Vladimir Agafonkin
  RBush, a JavaScript library for high-performance 2D spatial indexing of points and rectangles.
@@ -1925,7 +615,7 @@ else window.rbush = rbush;
 
 })();
 
-},{}],16:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 // Version 0.5.0 - Copyright 2012 - 2015 -  Jim Riecken <jimr@jimr.ca>
 //
 // Released under the MIT License - https://github.com/jriecken/sat-js
@@ -2909,44 +1599,1417 @@ else window.rbush = rbush;
   return SAT;
 }));
 
-},{}],17:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
+var AI = function(list) {
+  this.list = list;
+  this.dominant = null;
+
+  return this;
+}
+
+AI.prototype.addAIComponent = function(component) {
+  this.list.push(component);
+}
+
+AI.prototype.makeDominant = function(component) {
+  this.dominant = component;
+}
+
+AI.prototype.removeDominant = function() {
+  this.dominant = null;
+}
+
+AI.prototype.update = function(gameObject) {
+  if(this.dominant){
+    this.dominant.update(gameObject, this);
+  }
+  else{
+    for(i = 0; i < this.list.length; i++) {
+      this.list[i].update(gameObject, this);   
+    }
+  }
+}
+   
+
+
+module.exports = AI;
+},{}],4:[function(require,module,exports){
+var AIComponent = function(update) {
+  this.update = update;
+
+  return this;
+}
+
+    
+module.exports = AIComponent;
+},{}],5:[function(require,module,exports){
+var clock = require("../clock");
+
+var requestAnimationFrame = window.requestAnimationFrame;
+var cancelAnimationFrame = window.cancelAnimationFrame;
+
+if(! requestAnimationFrame) {
+  var vendors = ["ms", "moz", "webkit", "o"];
+  for(var i = 0, len = vendors.length; i < len && !requestAnimationFrame; i++) {
+    requestAnimationFrame = window[vendors[i]+'RequestAnimationFrame'];
+    cancelAnimationFrame = window[vendors[i]+'CancelAnimationFrame'] 
+                               || window[vendors[i]+'CancelRequestAnimationFrame'];
+  }
+  
+  
+  if(! requestAnimationFrame) {
+    var lastTime = 0;
+    requestAnimationFrame = function(callback, element) {
+      var currTime = clock.now();
+      var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+      var id = setTimeout(function() { callback(currTime + timeToCall); }, 
+        timeToCall);
+      lastTime = currTime + timeToCall;
+      return id;
+    }
+    cancelAnimationFrame = function(id) {
+      clearTimeout(id);
+    };
+  }
+}
+
+
+module.exports = {
+  request: function(cb) {
+    requestAnimationFrame.call(window, cb);
+  },
+  cancel: function(id) {
+    cancelAnimationFrame.call(window, id);
+  }
+}
+},{"../clock":7}],6:[function(require,module,exports){
+var Vector = require("../vector");
+var renderer= require("../renderer");
+
+var Camera = function(obj, dimensions, rotation, displayPosition, displayDimension, displayRotation, zoom){
+  this.active = true;
+  this.displaying = false;
+  this.position = obj.position;
+  this.dimensions = dimensions;
+  this.rotation = rotation;
+  this.displayPosition = displayPosition;
+  this.displayDimension = displayDimension;
+  this.displayRotation = displayRotation;
+  this.zoom = zoom;
+  this.offset = new Vector(0,0);
+
+  return this;
+}
+
+Camera.prototype.update = function() {
+  
+}
+
+Camera.prototype.draw = function() {
+  
+}
+
+Camera.prototype.activate = function() {
+  //Turns Camera On
+  if(this.active) {
+    console.log("This camera is already active!");
+  }
+  else {        
+    this.active = true;
+  }
+}
+
+Camera.prototype.deactivate = function() {
+  //Turns Camera Off
+  if(!this.active) {
+    console.log("This camera is already inactive!");
+  }
+  else {        
+    this.active = false;
+  }
+}
+
+//Camera.prototype.changeScene
+Camera.prototype.linkTo = function(obj) {
+  //Links Camera to gameObject
+  this.position = obj.position;
+}
+
+Camera.prototype.reset  = function() {
+  //Resets Camera offset to (0,0)
+  this.offset.reset();
+}
+
+Camera.prototype.setOffset = function(offset) {
+  this.offset = offset;
+}
+
+Camera.prototype.move = function(V) {
+  this.offset.add(V);
+}
+
+Camera.prototype.setRotation = function(rotation) {
+  this.rotation = rotation;
+}
+
+Camera.prototype.rotate = function(angle) {
+  this.rotation += angle;
+}
+
+Camera.prototype.zoom = function(toZoom) {
+  if(toZoom >= 0){
+    this.zoom *= toZoom;
+  }
+  else{
+    console.log("Invalid zoom!");
+  }
+}
+
+Camera.prototype.setZoom = function(toZoom) {
+  if(toZoom >= 0) {
+    this.zoom = toZoom;
+  }
+  else {
+    console.log("Invalid zoom!");
+  }
+}
+
+Camera.prototype.isObjectVisible = function(obj) {
+  if((obj.position.x + obj.dimensions.x >= this.position.x) && (obj.position.y + obj.dimensions.y >= this.position.y) && (obj.position.x <= this.position.x + this.dimensions.x) && (obj.position.y <= this.position.y + this.dimensions.y)) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
+Camera.prototype.drawScene = function(scene) {
+  //Draws the visible scene
+  if(this.active){
+    if(this.position.x - this.dimensions.x < 0){
+      this.position = this.dimensions.x;
+    }
+    if(this.position.y - this.dimensions.y < 0){
+      this.position = this.dimensions.y;
+    }
+    if(this.displaying){
+      //Draw Camera
+    }
+  }
+}
+
+Camera.prototype.drawOnScreen = function(image, position, dimensions, rotation) {
+  image.draw(position, dimensions, rotation);
+}
+
+
+
+module.exports = Camera;
+},{"../renderer":17,"../vector":20}],7:[function(require,module,exports){
+var events = require("../events");
+
+var lastUpdateTime;
+var lastDrawTime;
+
+
+var Clock = {
+  timeout: function(cb, time) {
+    setTimeout(cb, time);
+  },
+  now: (function() {
+    if("performance" in window) {
+      return function() {return performance.now();}
+    }
+    else if("webkitPerformance" in window) {
+      return function() {return webkitPerformance.now();}
+    }
+    else if("now" in Date) {
+      return function() {return Date.now();}
+    }
+    else {
+      return function() {return new Date();}
+    }
+  })(),
+  deltaTime: {},
+}
+
+
+
+var Timer = function(start) {
+  this.time = 0;
+  this.startTime = 0;
+  this.running = false;
+  this.started = false;
+  this.stopped = false;
+  
+  if(start) {
+    this.start();
+  }
+}
+
+Timer.prototype.start = function() {
+  if(!this.running && !this.stopped) {
+    this.startTime = Clock.now();
+    this.running = true;
+    this.started = true;
+  }
+  
+  return this;
+}
+
+Timer.prototype.pause = function() {
+  if(this.running && !this.stopped) {
+    this.time += Clock.now() - this.startTime;
+    this.running = false;
+  }
+  
+  return this;
+}
+
+Timer.prototype.stop = function() {
+  if(!this.stopped) {
+    if(this.running) {
+      this.time += Clock.now() - this.startTime;
+      this.running = false;
+    }
+    this.stopped = true;
+  }
+  
+  return this;
+}
+
+Clock.Timer = Timer;
+
+Clock.timer = function() {
+  return new Timer(true);
+}
+
+
+
+
+
+
+events.on("loop:update:start", function() {
+  lastUpdateTime = Clock.now();
+});
+
+events.on("loop:draw:start", function() {
+  lastDrawTime = Clock.now();
+});
+
+events.on("loop:update", function() {
+  Clock.time = Clock.now();
+  Clock.deltaTime.update = Clock.time - lastUpdateTime;
+});
+
+events.on("loop:draw", function() {
+  Clock.time = Clock.now();
+  Clock.deltaTime.draw = Clock.time - lastDrawTime;
+});
+
+
+
+module.exports = Clock;
+},{"../events":12}],8:[function(require,module,exports){
+// Crash
+// Version 1.1.0 - Copyright 2015 - Tuur Dutoit <me@tuurdutoit.be>
+//
+// Released under the MIT License - https://github.com/TuurDutoit/crash
+//
+// Crash performs optimized 2D collisions, powered by RBush and SAT.js, written in javascript.
+
+
+// Create a UMD wrapper for Crash. Works in:
+//
+//  - Plain browser via global Crash variable
+//  - AMD loader (like require.js)
+//  - Node.js
+
+(function(factory) {
+    "use strict";
+    
+    if(typeof define === "function" && define["amd"]) {
+        define(["RBush","SAT"], factory);
+    }
+    else if(typeof exports === "object") {
+        module.exports = factory(require("rbush"), require("sat"));
+    }
+    else {
+        window.Crash = factory(window.rbush, window.SAT);
+    }
+    
+}(function(RBush, SAT) {
+    "use strict";
+    
+
+    
+    
+    
+    
+    
+    
+    
+    /*************
+     * EXPORTS   *
+     * UTILITIES *
+     *************/
+    
+    
+    var exports = {
+        RBush:       RBush,
+        SAT:         SAT,
+        Vector:      SAT.Vector,
+        V:           SAT.Vector,
+        Response:    SAT.Response,
+        rbush:       null,
+        RESPONSE:    new SAT.Response(),
+        BREAK:       false,
+        MAX_CHECKS:   100,
+        OVERLAP_LIMIT: 0.5,
+        __listeners: [],
+        __notYetInserted: [],
+        __moved: []
+    }
+    
+    
+    
+    
+    
+    exports.extend = function(child, base) {
+        child.prototype = Object.create(base.prototype, {
+            constructor: {
+                value: child,
+                enumerable: false,
+                writable: true,
+                configurable: true
+            }
+        });
+    }
+    
+    exports.reset = function(maxEntries) {
+        this.clear();
+        this.__listeners = [];
+        this.BREAK = false;
+        this.MAX_CHECKS = 100;
+        this.OVERLAP_LIMIT = 0.5;
+        this.RESPONSE.clear();
+        this.init(maxEntries);
+        
+        return this;
+    }
+    
+    exports.onCollision = function(listener) {
+        this.__listeners.push(listener);
+        
+        return this;
+    }
+    
+    exports.offCollision = function(listener) {
+        var index = this.__listeners.indexOf(listener);
+        if(index > -1) {
+            this.__listeners.splice(index, 1);
+        }
+        
+        return this;
+    }
+    
+    exports.__onCollision = function(a, b, res) {
+        for(var i = 0, len = this.__listeners.length; i < len; i++) {
+            this.__listeners[i].call(this, a, b, res, this.cancel);
+        }
+        
+        return this;
+    }
+    
+    exports.cancel = function() {
+        this.BREAK = true;
+        return false;
+    }
+    
+    exports.getTestString = function(type1, type2) {
+        return type1 === "circle" ? (
+            type2 === "circle" ? "testCircleCircle" : "testCirclePolygon"
+        ) : (
+            type2 === "circle" ? "testPolygonCircle" : "testPolygonPolygon"
+        )
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    /***********
+     * EXPORTS *
+     * METHODS *
+     ***********/
+    
+    
+    exports.init = function(maxEntries) {
+        this.rbush = new RBush((maxEntries || 9), [".aabb.x1", ".aabb.y1", ".aabb.x2", ".aabb.y2"]);
+        
+        for(var i = 0, len = this.__notYetInserted.length; i < len; i++) {
+            this.rbush.insert(this.__notYetInserted.pop());
+        }
+        
+        return this;
+    }
+    
+    
+    exports.insert = function(collider) {
+        if(this.rbush) {
+            this.rbush.insert(collider);
+        }
+        else {
+            this.__notYetInserted.push(collider);
+        }
+        
+        return this;
+    }
+    
+    exports.remove = function(collider) {
+        if(this.rbush) {
+            this.rbush.remove(collider);
+        }
+        else {
+            var index = this.__notYetInserted.indexOf(collider);
+            if(index > -1) {
+                this.__notYetInserted.splice(index, 1);
+            }
+        }
+        
+        return this;
+    }
+    
+    exports.all = function() {
+        return this.rbush ? this.rbush.all() : this.__notYetInserted;
+    }
+    
+    var SEARCH_ARRAY = [];
+    exports.search = function(collider) {
+        if(this.rbush) {
+            SEARCH_ARRAY[0] = collider.aabb.x1;
+            SEARCH_ARRAY[1] = collider.aabb.y1;
+            SEARCH_ARRAY[2] = collider.aabb.x2;
+            SEARCH_ARRAY[3] = collider.aabb.y2;
+            var res = this.rbush.search(SEARCH_ARRAY);
+            var index = res.indexOf(collider);
+            if(index > -1) {
+                res.splice(index, 1);
+            }
+            
+            return res;
+        }
+        else {
+            return [];
+        }
+    }
+    
+    exports.clear = function() {
+        if(this.rbush) {
+            this.rbush.clear();
+        }
+        this.__moved = [];
+        this.__notYetInserted = [];
+        
+        return this;
+    }
+    
+    
+    exports.addToMoved = function(collider) {
+        if(this.__moved.indexOf(collider) === -1) {
+            this.__moved.push(collider);
+        }
+        
+        return this;
+    }
+    
+    exports.update = function(collider) {
+        this.updateAABB(collider);
+        this.remove(collider);
+        this.insert(collider);
+        
+        return this;
+    }
+    
+    exports.moved = function(collider) {
+        this.update(collider);
+        this.addToMoved(collider);
+        
+        return this;
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    /****************
+    * AABB UPDATES *
+    ****************/
+    
+    
+    exports.updateAABB = function(collider) {
+        switch(collider.type) {
+            case "polygon":
+                return exports.updateAABBPolygon(collider);
+                break;
+            case "box":
+                return exports.updateAABBBox(collider);
+                break;
+            case "circle":
+                return exports.updateAABBCircle(collider);
+                break;
+            case "point":
+                return exports.updateAABBPoint(collider);
+                break;
+        }
+    }
+    
+    exports.updateAABBPolygon = function(collider) {
+        var aabb = collider.aabb;
+        var pos = collider.sat.pos;
+        var points = collider.sat.calcPoints;
+        var len = points.length;
+        var xMin = points[0].x;
+        var yMin = points[0].y;
+        var xMax = points[0].x;
+        var yMax = points[0].y;
+        for (var i = 1; i < len; i++) {
+            var point = points[i];
+            if (point.x < xMin) {
+                xMin = point.x;
+            }
+            else if (point.x > xMax) {
+                xMax = point.x;
+            }
+            if (point.y < yMin) {
+                yMin = point.y;
+            }
+            else if (point.y > yMax) {
+                yMax = point.y;
+            }
+        }
+        
+        aabb.x1 = pos.x + xMin;
+        aabb.y1 = pos.y + yMin;
+        aabb.x2 = pos.x + xMax;
+        aabb.y2 = pos.y + yMax;
+    }
+    
+    exports.updateAABBBox = function(collider) {
+        var points = collider.sat.calcPoints;
+        var aabb = collider.aabb;
+        
+        aabb.x1 = points[0].x;
+        aabb.y1 = points[0].y;
+        aabb.x2 = points[2].x;
+        aabb.y2 = points[2].y;
+    }
+    
+    exports.updateAABBCircle = function(collider) {
+        var aabb = collider.aabb;
+        var r = collider.sat.r;
+        var center = collider.sat.pos;
+
+        aabb.x1 = center.x - r;
+        aabb.y1 = center.y - r;
+        aabb.x2 = center.x + r;
+        aabb.y2 = center.y + r;
+    }
+    
+    exports.updateAABBPoint = function(collider) {
+        var aabb = collider.aabb;
+        var pos = collider.sat.pos;
+        
+        aabb.x1 = aabb.x2 = pos.x;
+        aabb.y1 = aabb.y2 = pos.x;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    /*********
+     * TESTS *
+     *********/
+    
+    exports.test = function(a, b, res) {
+        var res = res || this.RESPONSE;
+        var str = this.getTestString(a.type, b.type);
+        
+        res.clear();
+        return SAT[str](a.sat, b.sat, res);
+    }
+    
+    
+    exports.testAll = function(a, res) {
+        var res = res || this.RESPONSE;
+        var possible = this.search(a);
+        
+        loop:
+        for(var i = 0, len = possible.length; i < len; i++) {
+            var b = possible[i];
+            var str = this.getTestString(a.type, b.type);
+            res.clear();
+            
+            if(SAT[str](a.sat, b.sat, res)) {
+                // Fix collisions with infinitely small overlaps causing way too many loops
+                if( (this.OVERLAP_LIMIT && Math.abs(res.overlap) > this.OVERLAP_LIMIT) || !this.OVERLAP_LIMIT) {
+                    this.__onCollision(a, b, res);
+                    if(this.BREAK) {
+                        break loop;
+                    }
+                }
+            }
+        }
+        
+        a.lastPos.copy(a.pos);
+        
+        var cancelled = this.BREAK;
+        this.BREAK = false;
+        
+        return !cancelled;
+    }
+    
+    
+    var ALL_MOVED = []; // holds all the colliders that have moved during check(), so we can set their lastCheckedPos
+    exports.check = function(res) {
+        var i = 0;
+        while(this.__moved.length && i < this.MAX_CHECKS) {
+            var collider = this.__moved.pop();
+            var index = ALL_MOVED.indexOf(collider);
+            if(index === -1) {
+                ALL_MOVED.push(collider);
+            }
+            
+            this.testAll(collider, res);
+            i++;
+        }
+        
+        for(var i = 0, len = ALL_MOVED.length; i < len; i++) {
+            ALL_MOVED[i].lastCheckedPos.copy(ALL_MOVED[i].pos);
+        }
+        ALL_MOVED.splice(0, ALL_MOVED.length);
+        
+        return this;
+    }
+    
+    exports.checkAll = function(res) {
+        var all = this.all();
+        for(var i = 0, len = all.length; i < len; i++) {
+            this.testAll(all[i], res);
+        }
+        this.check(res);
+        
+        return this;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    /***********
+     * CLASSES *
+     ***********/
+    
+    var Collider = exports.Collider = function Collider(type, sat, insert, data) {
+        this.type = type;
+        this.sat = sat;
+        this.data = data;
+        this.pos = this.sat.pos;
+        this.lastPos = this.pos.clone();
+        this.lastCheckedPos = this.pos.clone();
+        this.aabb = {};
+        
+        exports.updateAABB(this);
+        
+        if(insert) {
+            exports.insert(this);
+        }
+        
+        return this;
+    }
+    
+    Collider.prototype.insert = function() {
+        exports.insert(this);
+        
+        return this;
+    }
+    
+    Collider.prototype.remove = function() {
+        exports.remove(this);
+        
+        return this;
+    }
+    
+    Collider.prototype.update = function() {
+        exports.update(this);
+        
+        return this;
+    }
+    
+    Collider.prototype.updateAABB = function() {
+        exports.updateAABB(this);
+        
+        return this;
+    }
+    
+    Collider.prototype.moved = function() {
+        exports.moved(this);
+        
+        return this;
+    }
+    
+    Collider.prototype.search = function() {
+        return exports.search(this);
+    }
+    
+    Collider.prototype.setData = function(data) {
+        this.data = data;
+        
+        return this;
+    }
+    
+    Collider.prototype.getData = function() {
+        return this.data;
+    }
+    
+    Collider.prototype.moveTo = function(x, y) {
+        this.sat.pos.x = x;
+        this.sat.pos.y = y;
+        this.moved();
+        
+        return this;
+    }
+    
+    Collider.prototype.moveBy = Collider.prototype.move = function(x, y) {
+        this.sat.pos.x += x;
+        this.sat.pos.y += y;
+        this.moved();
+        
+        return this;
+    }
+    
+    
+    
+    
+    
+    
+    var Polygon = exports.Polygon = function Polygon(pos, points, insert, data) {
+        var sat = new SAT.Polygon(pos, points);
+        Collider.call(this, "polygon", sat, insert, data);
+        
+        return this;
+    }
+    
+    exports.extend(Polygon, Collider);
+    
+    Polygon.prototype.setPoints = function(points) {
+        this.sat.setPoints(points);
+        this.moved();
+        
+        return this;
+    }
+    
+    Polygon.prototype.setAngle = function(angle) {
+        this.sat.setAngle(angle);
+        this.moved();
+        
+        return this;
+    }
+    
+    Polygon.prototype.setOffset = function(offset) {
+        this.sat.setOffset(offset);
+        this.moved();
+        
+        return this;
+    }
+    
+    Polygon.prototype.rotate = function(angle) {
+        this.sat.rotate(angle);
+        this.moved();
+        
+        return this;
+    }
+    
+    
+    
+    
+    var Circle = exports.Circle = function Circle(pos, r, insert, data) {
+        var sat = new SAT.Circle(pos, r);
+        Collider.call(this, "circle", sat, insert, data);
+        
+        return this;
+    }
+    
+    exports.extend(Circle, Collider);
+    
+    
+    
+    
+    
+    var Point = exports.Point = function Point(pos, insert, data) {
+        var sat = (new SAT.Box(pos, 1, 1)).toPolygon();
+        Collider.call(this, "point", sat, insert, data);
+        
+        return this;
+    }
+    
+    exports.extend(Point, Collider);
+    
+    
+    
+    
+    
+    var Box = exports.Box = function Box(pos, w, h, insert, data) {
+        var sat = (new SAT.Box(pos, w, h)).toPolygon();
+        Collider.call(this, "box", sat, insert, data);
+        
+        return this;
+    }
+    
+    exports.extend(Box, Collider);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    return exports;
+    
+    
+    
+    
+    
+}));
+},{"rbush":1,"sat":2}],9:[function(require,module,exports){
+module.exports = require("./crash");
+},{"./crash":8}],10:[function(require,module,exports){
+var Vector = require("../vector");
+
+
+var canvas = document.createElement('canvas');
+canvas.width   = 300;
+canvas.height  = 300;
+var context	   = canvas.getContext("2d"); 
+
+module.exports = {
+  canvasDimensions: function(){
+    return new Vector(canvas.width, canvas.height);
+  },
+  changeCanvasDimensions: function(D){
+    canvas.width = D.x;
+    canvas.height= D.y;
+  },
+  clearCanvas: function(){
+    context.clearRect(0, 0, canvas.width, canvas.height);  
+  },
+  drawImage: function(image, position, dimensions, rotation){
+    context.drawImage(image, position.x, canvas.height - position.y, dimensions.x, dimensions.y);
+  },
+  drawSprite: function(image, sheetPosition, sheetDimensions, position, dimensions, rotation){
+    context.drawImage(image, sheetPosition.x, sheetPosition.y, sheetDimensions.x, sheetDimensions.y, position.x, canvas.height - position.y, dimensions.x, dimensions.y);
+  },
+  drawRectangle: function(position, dimensions){
+    context.fillRect(position.x, canvas.height - position.y - dimensions.y,dimensions.x,dimensions.y);
+  },
+  DOMElement: canvas
+};
+},{"../vector":20}],11:[function(require,module,exports){
+var EventEmitter = function() {
+  this._eventemitter = {
+    events: {},
+    proxies: []
+  }
+}
+
+
+EventEmitter.prototype.on = function(event, listener, context) {
+  var listeners = this._eventemitter.events[event];
+  listener.__context__ = context || null;
+  if(! listeners) {
+    var listeners = this._eventemitter.events[event] = [];
+  }
+  listeners.push(listener);
+  
+  return this;
+}
+
+
+EventEmitter.prototype.once = function(event, listener, context) {
+  var self = this;
+  var cb = function() {
+    listener.apply(this, arguments);
+    self.off(event, cb);
+  }
+  this.on(event, cb, context);
+  
+  return this;
+}
+
+
+EventEmitter.prototype.many = function(event, listener, amount, context) {
+  var self = this;
+  var count = 0;
+  var cb = function() {
+    listener.apply(this, arguments);
+    count++;
+    if(count === amount) {
+      self.off(event, cb);
+    }
+  }
+  this.on(event, cb, context);
+  
+  return this;
+}
+
+
+EventEmitter.prototype.off = function(event, listener) {
+  var listeners = this._eventemitter.events[event];
+  if(listeners) {
+    if(listener) {
+      var index = listeners.indexOf(listener);
+      if(index !== -1) {
+        listeners.splice(index, 1);
+      }
+    }
+    else {
+      listeners.length = 0;
+    }
+  }
+  
+  return this;
+}
+
+
+EventEmitter.prototype.emit = function(event, args) {
+  var listeners = this._eventemitter.events[event];
+  if(listeners) {
+    for(var i = 0; i < listeners.length; i++) {
+      var listener = listeners[i];
+      listener.apply(listener.__context__ || null, args);
+    }
+  }
+  
+  var proxies = this._eventemitter.proxies;
+  for(var i = 0, len = proxies.length; i < len; i++) {
+    var proxy = proxies[i];
+    proxy.exec(this, proxy.other, event, args);
+  }
+  
+  return this;
+}
+
+
+EventEmitter.prototype.listeners = function(event) {
+  return this._eventemitter.events[event] || [];
+}
+
+
+EventEmitter.prototype.count = function(event) {
+  return this.listeners(event).length;
+}
+
+
+EventEmitter.prototype.pipe = function(other, exec) {
+  if(typeof exec === "string") {
+    var exec = createPrefixedExec(exec);
+  }
+  else if(typeof exec !== "function") {
+    var exec = defaultExec;
+  }
+  
+  this._eventemitter.proxies.push({other: other, exec: exec});
+  
+  return this;
+}
+
+
+EventEmitter.prototype.pipeFrom = function(other, exec) {
+  other.pipe(this, exec);
+  
+  return this;
+}
+
+
+EventEmitter.prototype.proxy = function(other, execPush, execFrom) {
+  this.pipe(other, execPush);
+  other.pipe(this, execFrom || execPush);
+  
+  return this;
+}
+
+
+
+
+
+
+
+function defaultExec(self, other, event, args) {
+  other.emit(event, args);
+}
+
+
+function createPrefixedExec(prefix) {
+  return function(self, other, event, args) {
+    other.emit(prefix+event, args);
+  }
+}
+
+
+
+
+
+
+module.exports = EventEmitter;
+},{}],12:[function(require,module,exports){
+var EventEmitter = require("../event-emitter");
+
+module.exports = new EventEmitter();
+},{"../event-emitter":11}],13:[function(require,module,exports){
+var renderer = require("../renderer");
+
+
+var gameObject = function(name, type, image, position, dimensions, depth, children, AI){
+  this.name = name;
+  this.type = type;
+  this.image = image;
+  this.position = position;
+  this.dimensions = dimensions;
+  this.depth = depth;
+  this.children = children;
+  this.AI = AI;
+
+  return this;
+}
+
+gameObject.prototype.start = function() {
+  
+}
+
+gameObject.prototype.fixedUpdate = function() {
+  //this.image.update();
+  //this.AI.update(this);
+  return this;
+}
+
+gameObject.prototype.addChild = function(name, child){
+  if(this.children[name]){
+    console.log("Space already occupied.");
+  }
+  else{
+    this.children[name] = child;
+  }
+}
+
+gameObject.prototype.update = function() {
+  
+}
+
+gameObject.prototype.draw   = function() {
+  renderer.drawRectangle(this.position, this.dimensions);
+}
+
+gameObject.prototype.move = function(V) {
+  this.position.add(V);
+  
+  return this;
+}
+
+gameObject.prototype.distanceToGameObject = function(obj) {
+  return this.position.getDistanceTo(obj.position);
+}
+
+gameObject.prototype.distanceToGameObjectCubed = function(obj) {
+  return this.position.getDistanceToCubed(obj.position);
+}
+
+
+
+module.exports = gameObject;
+},{"../renderer":17}],14:[function(require,module,exports){
+var EventEmitter = require("../event-emitter");
+var events = require("../events");
+var clock = require("../clock");
+var animationFrame = require("../animation-frame");
+
+var staticFps = false;
+var fps;
+var timeoutTime;
+var timer;
+var timerIsRAF;
+
+
+var mod = new EventEmitter();
+mod.pipe(events, function(self, other, event, args) {
+  var e = event === "draw" ? "loop:draw" : "loop:draw:" + event;
+  other.emit(e, args);
+});
+
+
+var timeout = function() {
+  if(staticFps) {
+    timer = clock.timeout(loop, timeoutTime);
+    timerIsRAF = false;
+  }
+  else {
+    timer = animationFrame.request(loop);
+    timerIsRAF = true;
+  }
+}
+
+var clearTimeout = function() {
+  if(timerIsRAF) {
+    animationFrame.cancel(timer);
+  }
+  else {
+    clock.clearTimeout(timer);
+  }
+}
+
+
+
+
+
+var loop = function() {
+  mod.emit("draw");
+  timeout();
+}
+
+var start = function() {
+  mod.emit("start");
+  loop();
+}
+
+var pause = function() {
+  mod.emit("pause");
+  clearTimeout();
+}
+
+var stop = function() {
+  mod.emit("stop");
+  clearTimeout();
+}
+
+var setFps = function(val) {
+  if(val === undefined) {
+    return fps;
+  }
+  else if(typeof fps === "number") {
+    fps = val;
+    timeoutTime = 1000 / fps;
+    staticFps = true;
+    mod.emit("fps", [true, val]);
+  }
+  else {
+    staticFps = false;
+    mod.emit("fps", [false, val]);
+  }
+}
+
+
+
+mod.start = start;
+mod.pause = pause;
+mod.stop = stop;
+mod.setFps = setFps;
+
+
+module.exports = mod;
+},{"../animation-frame":5,"../clock":7,"../event-emitter":11,"../events":12}],15:[function(require,module,exports){
+var EventEmitter = require("../event-emitter");
+var events = require("../events");
+var clock = require("../clock");
+var animationFrame = require("../animation-frame");
+
+var fps = 60;
+var timeoutTime = 1000 / fps;
+var staticFps = true;
+var timer;
+var timerIsRAF;
+
+
+var mod = new EventEmitter();
+mod.pipe(events, function(self, other, event, args) {
+  var e = event === "update" ? "loop:update" : "loop:update:" + event;
+  other.emit(e, args);
+});
+
+
+var timeout = function() {
+  if(staticFps) {
+    timer = clock.timeout(loop, timeoutTime);
+    timerIsRAF = false;
+  }
+  else {
+    timer = animationFrame.request(loop);
+    timerIsRAF = true;
+  }
+}
+
+var clearTimeout = function() {
+  if(timerIsRAF) {
+    animationFrame.cancel(timer);
+  }
+  else {
+    clock.clearTimeout(timer);
+  }
+}
+
+
+
+
+
+var loop = function() {
+  mod.emit("update");
+  timeout();
+}
+
+var start = function() {
+  mod.emit("start");
+  loop();
+}
+
+var pause = function() {
+  mod.emit("pause");
+  clearTimeout();
+}
+
+var stop = function() {
+  mod.emit("stop");
+  clearTimeout();
+}
+
+var setFps = function(val) {
+  if(val === undefined) {
+    return fps;
+  }
+  else if(typeof fps === "number") {
+    fps = val;
+    timeoutTime = 1000 / fps;
+    staticFps = true;
+    mod.emit("fps", [true, val]);
+  }
+  else {
+    staticFps = false;
+    mod.emit("fps", [false, val]);
+  }
+}
+
+
+
+mod.start = start;
+mod.pause = pause;
+mod.stop = stop;
+mod.setFps = setFps;
+
+
+module.exports = mod;
+},{"../animation-frame":5,"../clock":7,"../event-emitter":11,"../events":12}],16:[function(require,module,exports){
+var updateLoop = require("../loop-update");
+var drawLoop = require("../loop-draw");
+
+module.exports = {
+  start: function() {
+    updateLoop.start();
+    drawLoop.start();
+  },
+  pause: function() {
+    updateLoop.pause();
+    drawLoop.pause();
+  },
+  stop: function() {
+    updateLoop.stop();
+    drawLoop.stop();
+  },
+  updateFps: function(val) {
+    updateLoop.fps(val);
+  },
+  drawFps: function(val) {
+    drawLoop.fps(val);
+  }
+}
+},{"../loop-draw":14,"../loop-update":15}],17:[function(require,module,exports){
 var toLoad = "draw-canvas";
 //var renderEngine = require(("../"+toLoad));
 var renderEngine = require("../draw-canvas");
+
+
+
 module.exports = renderEngine;
-},{"../draw-canvas":8}],18:[function(require,module,exports){
+},{"../draw-canvas":10}],18:[function(require,module,exports){
 var events = require("../events");
-var Scene = function(name, sequence){
-    this.name = name;
-    this.sequence = sequence;
-    this.cameras = [];
-    
-    return this;
+
+
+var Scene = function(name, sequence) {
+  this.name = name;
+  this.sequence = sequence;
+  this.cameras = [];
+
+  return this;
 }
+
 Scene.prototype.update = function(){
-    for (i = 0; i < this.sequence.length; i++) {
-        //console.log(this.sequence[i]);
-        this.sequence[i].update();
-        this.sequence[i].fixedUpdate();
-        //console.log(this.sequence[i]);
-    }
+  for (i = 0; i < this.sequence.length; i++) {
+    //console.log(this.sequence[i]);
+    this.sequence[i].update();
+    this.sequence[i].fixedUpdate();
+    //console.log(this.sequence[i]);
+  }
 }
+
 Scene.prototype.draw = function(){
-    for (i = 0; i < this.cameras.length; i++) {
-        for (e = 0; e < this.sequence.length; e++) {
-            this.sequence[e].draw(this.cameras[i]);
-        }
+  for (i = 0, len = this.cameras.length; i < len; i++) {
+    for (e = 0, len = this.sequence.length; e < len; e++) {
+      this.sequence[e].draw(this.cameras[i]);
     }
+  }
 }
-Scene.prototype.addObject = function(obj){
-    this.sequence.push(obj);
+
+Scene.prototype.addObject = function(obj) {
+  this.sequence.push(obj);
 }
-Scene.prototype.addCamera = function(camera){
-    this.cameras.push(camera);
-}  
+
+Scene.prototype.addCamera = function(camera) {
+  this.cameras.push(camera);
+}
+
+
+
 module.exports = Scene;
-},{"../events":10}],19:[function(require,module,exports){
+},{"../events":12}],19:[function(require,module,exports){
 var events = require("../events");
+
+
 var Scenes = {
     scenes: [],
     addScene: function(scene){
@@ -2975,7 +3038,27 @@ events.on("loop:update", function() {
     Scenes.update();
 });
 module.exports = Scenes;
-},{"../events":10}],20:[function(require,module,exports){
+},{"../events":12}],20:[function(require,module,exports){
+var Vector = require("../colliders").Vector;
+
+
+Vector.prototype.reset = function() {
+  this.x = 0;
+  this.y = 0;
+
+  return this;
+}
+
+Vector.prototype.distance2 = function(V) {
+  return ((this.x - V.x) * (this.x - V.x) + (this.y - V.y) * (this.y - V.y));
+}
+
+Vector.prototype.distance = function(V) {    
+  return Math.sqrt(this.distance2(V));
+}
+
+module.exports = Vector;
+},{"../colliders":9}],21:[function(require,module,exports){
 events = require("../events");
 renderer = require("../renderer");
 Vector = require("../vector");
@@ -3002,21 +3085,6 @@ scenes.addScene(leTestScene);
 events.on("loop:draw", function() {
    // renderer.drawRectangle(new Vector(0,0), new Vector(100,100));
 });
-//
-},{"../AI":2,"../AIComponent":1,"../camera":4,"../events":10,"../gameObject":11,"../loop":14,"../renderer":17,"../scene":18,"../scenes":19,"../vector":21}],21:[function(require,module,exports){
-var Vector = require("../colliders").Vector;
-Vector.prototype.reset = function(){
-	this.x = 0;
-	this.y = 0;
 
-	return this;
-}
-Vector.prototype.distanceToCubed = function(V){
-    return ((this.x - V.x) * (this.x - V.x) + (this.y - V.y) * (this.y - V.y));
-}
-Vector.prototype.distanceTo = function(V){    
-    return Math.sqrt(this.distanceToCubed(V));
-}
-
-module.exports = Vector;
-},{"../colliders":7}]},{},[20]);
+document.body.appendChild(renderer.DOMElement);
+},{"../AI":3,"../AIComponent":4,"../camera":6,"../events":12,"../gameObject":13,"../loop":16,"../renderer":17,"../scene":18,"../scenes":19,"../vector":20}]},{},[21]);

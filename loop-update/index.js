@@ -1,7 +1,7 @@
 var EventEmitter = require("../event-emitter");
 var events = require("../events");
 var clock = require("../clock");
-var animationFrame("../animation-frame");
+var animationFrame = require("../animation-frame");
 
 var fps = 60;
 var timeoutTime = 1000 / fps;
