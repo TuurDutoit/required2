@@ -1,4 +1,4 @@
-renderer = require("../rederer");
+var renderer = require("../rederer");
 
 
 var SpriteAnimation = function(sequence, looping){
