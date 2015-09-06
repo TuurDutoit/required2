@@ -18,13 +18,13 @@ module.exports = {
     context.clearRect(0, 0, canvas.width, canvas.height);  
   },
   drawImage: function(image, position, dimensions, rotation){
-    context.drawImage(image, position.x, canvas.height - position.y, dimensions.x, dimensions.y);
+    context.drawImage(image, position.x, position.y, dimensions.x, dimensions.y);
   },
   drawSprite: function(image, sheetPosition, sheetDimensions, position, dimensions, rotation){
-    context.drawImage(image, sheetPosition.x, sheetPosition.y, sheetDimensions.x, sheetDimensions.y, position.x, canvas.height - position.y, dimensions.x, dimensions.y);
+    context.drawImage(image, sheetPosition.x, sheetPosition.y, sheetDimensions.x, sheetDimensions.y, position.x, position.y, dimensions.x, dimensions.y);
   },
   drawRectangle: function(position, dimensions){
-    context.fillRect(position.x, canvas.height - position.y - dimensions.y,dimensions.x,dimensions.y);
+    context.fillRect(position.x, position.y ,dimensions.x, dimensions.y);
   },
   drawText: function(text, font, position){
     context.font = font;
