@@ -128,12 +128,22 @@ GameObject.prototype.getChildIndex = function(child) {
 
 GameObject.prototype.forEachChild = function(cb) {
   for(var i = 0; i < this.children.length; i++) {
-    cb(this.children.length, i, this.children);
+    cb(this.children[i], i, this.children);
   }
   
   return this;
 }
 
+GameObject.prototype.init = function() {
+  return this;
+}
 
+GameObject.prototype.update = function() {
+ return this; 
+}
+
+GameObject.prototype.draw = function(camera) {
+  return this;
+}
 
 module.exports = GameObject;

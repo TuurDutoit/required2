@@ -7,8 +7,8 @@ var Scene = function() {
   this.ids = {};
   this.classes = {};
   
-  //events.on("loop:draw", this.draw());
-  //events.on("loop:update", this.update());
+  events.on("loop:draw", this.draw());
+  events.on("loop:update", this.update());
   
   return this;
 }
@@ -104,6 +104,14 @@ Scene.prototype.init = function() {
 Scene.prototype.update = function() {
   this.forEachChild(function(child) {
     child.update();
+  });
+  
+  return this;
+}
+
+Scene.prototype.draw = function() {
+  this.forEachChild(function(child) {
+    child.draw();
   });
   
   return this;

@@ -1,4 +1,3 @@
-var standardSpeed = require("../standard-speed");
 var events = require("../events");
 var clock = require("../clock");
 
