@@ -3,6 +3,7 @@ var events = require("../events");
 
 var Scene = function() {
   this.children = [];
+  this.cameras = [];
   this.ids = {};
   this.classes = {};
   
@@ -84,7 +85,9 @@ Scene.prototype.forEachChild = function(cb) {
   return this;
 }
 
-
+Scene.prototype.addCamera = function(camera){
+  this.cameras.push(camera);
+}
 
 
 Scene.prototype.init = function() {

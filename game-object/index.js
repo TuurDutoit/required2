@@ -2,13 +2,35 @@ var Vector = require("../vector");
 
 
 
-var GameObject = function(position, dimensions, angle, rotationCenter) {
+var GameObject = function(position, dimensions, angle) {
   this.position = position || new Vector();
   this.dimensions = dimensions|| new Vector();
   this.angle = angle || 0;
   this.children = [];
   this.parent = null;
   this.collider = null;
+  
+  return this;
+}
+
+GameObject.prototype.move = function(v){
+  this.position.add(v);
+  
+  return this;
+}
+
+GameObject.prototype.rotate = function(angle){
+  this.angle += angle;
+}
+
+GameObject.prototype.rotateAround = function(v, angle){
+  var s = Math.sin(angle);
+  var c = Math.cos(angle);
+  this.position.sub(v);
+  this.position.x = this.position.x * c - this.position.y * s;
+  this.position.y = this.position.x * s + this.position.y * c;
+  this.postition.add(v);
+  this.rotate(angle);
   
   return this;
 }
