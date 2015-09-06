@@ -7,6 +7,9 @@ var Scene = function() {
   this.ids = {};
   this.classes = {};
   
+  //events.on("loop:draw", this.draw());
+  //events.on("loop:update", this.update());
+  
   return this;
 }
 
@@ -110,9 +113,3 @@ module.exports = Scene;
 
 
 
-events.on("loop:draw", function() {
-    Scene.draw();
-});
-events.on("loop:update", function() {
-    Scene.update();
-});

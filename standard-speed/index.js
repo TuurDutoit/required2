@@ -2,12 +2,14 @@ var events = require("../events");
 var clock = require("../clock");
 var renderer = require("../renderer");
 var Vector = require("../vector");
-var standards = {
+
+var standardSpeed = {
+  speed: 0
 }
 
 events.on("loop:update:before", function(){
-  //console.log(clock.deltaTime.update / 1000 * 60);
-  renderer.drawText(clock.deltaTime.update, "20px Georgia", new Vector(0,90));
+  standardSpeed.speed = clock.deltaTime.update / 1000 * 60;
+  console.log(clock.deltaTime.update / 1000 * 60);
 });
 
-module.exports = standards;
+module.exports = standardSpeed;
