@@ -106,7 +106,13 @@ Scene.prototype.update = function() {
   return this;
 }
 
-
-
-
 module.exports = Scene;
+
+
+
+events.on("loop:draw", function() {
+    Scene.draw();
+});
+events.on("loop:update", function() {
+    Scene.update();
+});
