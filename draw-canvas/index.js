@@ -1,5 +1,5 @@
 var Vector = require("../vector");
-
+var events = require("../events");
 
 var canvas = document.createElement('canvas');
 canvas.width   = 300;
@@ -26,5 +26,13 @@ module.exports = {
   drawRectangle: function(position, dimensions){
     context.fillRect(position.x, canvas.height - position.y - dimensions.y,dimensions.x,dimensions.y);
   },
+  drawText: function(text, font, position){
+    context.font = font;
+    context.fillText(text, position.x, position.y);
+  },
   DOMElement: canvas
 };
+
+events.on("loop:update:before", function(){
+  context.clearRect(0, 0, canvas.width, canvas.height);  
+});
