@@ -9,7 +9,7 @@ var GameObject = require("../game-object");
 var AI = require("../ai");
 var AIComponent = require("../ai-component");
 var loop = require("../loop");
-loop.updateFps(1);
+loop.updateFps(60);
 Game = {
     start: function(){
         loop.start()
