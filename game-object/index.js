@@ -6,7 +6,7 @@ var util = require("util");
 
 
 var GameObject = function(position, dimensions, angle) {
-  this._super().call(this);
+  EventEmitter.call(this);
   this.position = position || new Vector();
   this.dimensions = dimensions|| new Vector();
   this.angle = angle || 0;
@@ -156,5 +156,8 @@ GameObject.prototype.update = function() {
 GameObject.prototype.draw = function(camera) {
   return this;
 }
+
+
+
 
 module.exports = GameObject;
