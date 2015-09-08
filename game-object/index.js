@@ -1,8 +1,12 @@
 var Vector = require("../vector");
+var EventEmitter = require("event-emitter");
+var util = require("util");
 
 
 
 var GameObject = function(position, dimensions, angle, rotationCenter) {
+  this._super().call(this);
+  
   this.position = position || new Vector();
   this.dimensions = dimensions|| new Vector();
   this.angle = angle || 0;
@@ -12,6 +16,9 @@ var GameObject = function(position, dimensions, angle, rotationCenter) {
   
   return this;
 }
+
+util.inherits(GameObject, EventEmitter);
+
 
 GameObject.prototype.absolutePosition = function() {
   return this.relativeToAbsolute(this.position);
