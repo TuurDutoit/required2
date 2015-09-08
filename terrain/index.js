@@ -21,6 +21,16 @@ Terrain.prototype.forEachBlock = function(cb){
   }
 }
 
+Terrain.prototype.getBlock = function(index){
+  return matrix[index.y][index.x];
+}
+
+Terrain.prototype.replaceBlock = function(index, block){
+  this.matrix[index.y][index.x] = block;
+  
+  return this;
+}
+
 Terrain.prototype.start = function(){
 
 }
@@ -32,8 +42,6 @@ Terrain.prototype.update = function(){
 Terrain.prototype.draw = function(camera){
   var pos = this.position;
   var blockS = this.blockSize;
-  var T = new Vector(1,1);
-  console.log(T.multiply(blockS));
   this.forEachBlock(function(block, position){
     block.draw(position.add(pos).multiply(blockS));
   });

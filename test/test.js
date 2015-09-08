@@ -11,6 +11,7 @@ var AIComponent = require("../ai-component");
 var loop = require("../loop");
 var Block = require("../block");
 var EmptyBlock = require("../empty-block");
+var input = require("../input");
 
 loop.updateFps(60);
 Game = {
@@ -30,7 +31,11 @@ leTestScene.appendChild(new Terrain([[B,B,B,B,B,B,B,B],
                                                    [B,B,B,B,B,B,B,B]]
                                                  )
                        );
-events.on("loop:draw", function(){leTestScene.draw()});
+input.mapKey(33, "up");
+events.on("loop:draw", function(){
+  leTestScene.draw();
+  console.log(input.keyStatus("up"));
+});
 events.on("loop:update", function(){leTestScene.update()});
 
 events.on("loop:update:before", function(){
