@@ -4,9 +4,9 @@ var util = require("util");
 
 
 
-var GameObject = function(position, dimensions, angle, rotationCenter) {
+
+var GameObject = function(position, dimensions, angle) {
   this._super().call(this);
-  
   this.position = position || new Vector();
   this.dimensions = dimensions|| new Vector();
   this.angle = angle || 0;
@@ -19,6 +19,32 @@ var GameObject = function(position, dimensions, angle, rotationCenter) {
 
 util.inherits(GameObject, EventEmitter);
 
+
+GameObject.prototype.move = function(v){
+  this.position.add(v);
+  
+  return this;
+}
+
+GameObject.prototype.rotate = function(angle) {
+  this.angle += angle;
+  
+  return this;
+}
+
+GameObject.prototype.rotateAround = function(v, angle) {
+  var pos = this.position;
+  var s = Math.sin(angle);
+  var c = Math.cos(angle);
+  
+  pos.sub(v);
+  pos.x = pos.x * c - pos.y * s;
+  pos.y = pos.x * s + pos.y * c;
+  pos.add(v);
+  this.rotate(angle);
+  
+  return this;
+}
 
 GameObject.prototype.absolutePosition = function() {
   return this.relativeToAbsolute(this.position);
@@ -113,12 +139,22 @@ GameObject.prototype.getChildIndex = function(child) {
 
 GameObject.prototype.forEachChild = function(cb) {
   for(var i = 0; i < this.children.length; i++) {
-    cb(this.children.length, i, this.children);
+    cb(this.children[i], i, this.children);
   }
   
   return this;
 }
 
+GameObject.prototype.init = function() {
+  return this;
+}
 
+GameObject.prototype.update = function() {
+ return this; 
+}
+
+GameObject.prototype.draw = function(camera) {
+  return this;
+}
 
 module.exports = GameObject;

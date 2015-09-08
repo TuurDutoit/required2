@@ -3,8 +3,12 @@ var events = require("../events");
 
 var Scene = function() {
   this.children = [];
+  this.cameras = [];
   this.ids = {};
   this.classes = {};
+  
+  //events.on("loop:draw", this.draw());
+  //events.on("loop:update", this.update());
   
   return this;
 }
@@ -84,7 +88,9 @@ Scene.prototype.forEachChild = function(cb) {
   return this;
 }
 
-
+Scene.prototype.addCamera = function(camera){
+  this.cameras.push(camera);
+}
 
 
 Scene.prototype.init = function() {
@@ -103,7 +109,15 @@ Scene.prototype.update = function() {
   return this;
 }
 
-
-
+Scene.prototype.draw = function() {
+  this.forEachChild(function(child) {
+    child.draw();
+  });
+  
+  return this;
+}
 
 module.exports = Scene;
+
+
+

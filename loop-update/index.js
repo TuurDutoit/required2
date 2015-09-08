@@ -72,12 +72,13 @@ var stop = function() {
 }
 
 var setFps = function(val) {
+  console.log(val);
   if(val === undefined) {
     return fps;
   }
   else if(typeof val === "number") {
     fps = val;
-    timeoutTime = 1000 / val;
+    timeoutTime = 1000 / fps;
     staticFps = true;
     mod.emit("fps", [true, val]);
   }
