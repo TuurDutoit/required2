@@ -1,17 +1,21 @@
-Vector = require("../vector");
-GameObject = require("../game-object");
+var Vector = require("../vector");
+var GameObject = require("../game-object");
+var EventEmitter = require("../event-emitter");
+var util = require("util");
 
 var Terrain = function(matrix, position){
-  this._super.call(this, arguments);
+  EventEmitter.call(this);
   this.matrix = matrix;
   this.position = position || new Vector();
-  
+  this.blockSize = 36;
   return this;
 }
 
+util.inherits(Terrain, GameObject);
+
 Terrain.prototype.forEachBlock = function(cb){
-  for(var y = 0; var lenA = this.matrix.length; y < lenA; y++) {
-    for(var x = 0; var lenB = this.matrix[y].length; x < lenB; x++) {
+  for(y = 0, lenA = this.matrix.length; y < lenA; y++) {
+    for(x = 0, lenB = this.matrix[y].length; x < lenB; x++) {
       cb(this.matrix[y][x], new Vector(x,y), this.matrix);
     }
   }
@@ -26,11 +30,13 @@ Terrain.prototype.update = function(){
 }
 
 Terrain.prototype.draw = function(camera){
+  var pos = this.position;
+  var blockS = this.blockSize;
+  var T = new Vector(1,1);
+  console.log(T.multiply(blockS));
   this.forEachBlock(function(block, position){
-    block.draw(camera, position.add(this.position);
+    block.draw(position.add(pos).multiply(blockS));
   });
 }
-
-util.inherits(Terrain, GameObject);
 
 module.exports = Terrain;

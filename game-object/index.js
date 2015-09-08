@@ -1,5 +1,5 @@
 var Vector = require("../vector");
-var EventEmitter = require("event-emitter");
+var EventEmitter = require("../event-emitter");
 var util = require("util");
 
 

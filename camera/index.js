@@ -1,12 +1,12 @@
 var Vector = require("../vector");
 var renderer= require("../renderer");
 
-var Camera = function(obj, dimensions, rotation, displayPosition, displayDimension, displayRotation, zoom){
+var Camera = function(obj, dimensions, angle, displayPosition, displayDimension, displayRotation, zoom){
   this.active = true;
   this.displaying = false;
   this.position = obj.position;
   this.dimensions = dimensions;
-  this.rotation = rotation;
+  this.angle = angle;
   this.displayPosition = displayPosition;
   this.displayDimension = displayDimension;
   this.displayRotation = displayRotation;
@@ -64,13 +64,24 @@ Camera.prototype.move = function(V) {
 }
 
 Camera.prototype.setRotation = function(rotation) {
-  this.rotation = rotation;
+  this.angle = rotation;
 }
 
 Camera.prototype.rotate = function(angle) {
-  this.rotation += angle;
+  this.angle += angle;
 }
 
+Camera.prototype.rotateAround = function(v, angle){
+  if(v instanceof Vector){
+    this.position.rotateAround(v, angle);
+  }
+  else{
+    this.position.rotateAround(v.position, angle);
+  }
+  this.rotate(angle);
+  
+  return this;
+}
 Camera.prototype.zoom = function(toZoom) {
   if(toZoom >= 0){
     this.zoom *= toZoom;

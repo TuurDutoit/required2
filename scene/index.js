@@ -7,9 +7,6 @@ var Scene = function() {
   this.ids = {};
   this.classes = {};
   
-  //events.on("loop:draw", this.draw());
-  //events.on("loop:update", this.update());
-  
   return this;
 }
 
@@ -82,7 +79,7 @@ Scene.prototype.getChildIndex = function(child) {
 
 Scene.prototype.forEachChild = function(cb) {
   for(var i = 0; i < this.children.length; i++) {
-    cb(this.children.length, i, this.children);
+    cb(this.children[i], i, this.children);
   }
   
   return this;
