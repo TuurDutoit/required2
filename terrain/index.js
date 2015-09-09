@@ -18,7 +18,12 @@ util.inherits(Terrain, GameObject);
 
 Terrain.prototype.convert = function(){
   this.forEachBlock(function(block, position, matrix){
-    matrix[y][x] = blocks.getBlockById(matrix[y][x]);
+    if(typeof matrix[y][x] === "number"){
+      matrix[y][x] = blocks.getBlockById(matrix[y][x]);
+    }
+    else if(typeof matrix[y][x] === "undefined"){
+      matrix[y][x] = blocks.getBlockById(0);
+    }
   });
 }
 

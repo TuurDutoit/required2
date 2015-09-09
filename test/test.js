@@ -24,9 +24,9 @@ var Play = new Player(document.getElementById("Icon"), new Vector(), new Vector(
 leTestScene = new Scene();
 leTestScene.addCamera(new Camera(new GameObject("Q", "Q", null, new Vector(0,0), new Vector(100,100), null), new Vector(300, 300), 0, new Vector(0,0), new Vector(0,0), 0, 0));
 leTestScene.appendChild(new Terrain([[1,1,1,1,1,1,1,1],
-                                     [1,0,0,0,0,0,0,1],
-                                     [1,0,0,0,0,0,0,1],
-                                     [1,0,0,0,0,0,0,1],
+                                     [1, , , , , , ,1],
+                                     [1, , , , , , ,1],
+                                     [1, , , , , , ,1],
                                      [1,1,1,1,1,1,1,1]]));
 leTestScene.appendChild(Play);
 input.mapKey(38, "up").mapKey(40, "down").mapKey(37, "left").mapKey(39, "right");
