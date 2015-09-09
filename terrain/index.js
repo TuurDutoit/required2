@@ -1,17 +1,26 @@
 var Vector = require("../vector");
 var GameObject = require("../game-object");
 var EventEmitter = require("../event-emitter");
-var util = require("util");
+var util = require("../util");
+var blocks =  require("../blocks");
 
 var Terrain = function(matrix, position){
   EventEmitter.call(this);
   this.matrix = matrix;
   this.position = position || new Vector();
   this.blockSize = 36;
+  this.convert();
+  
   return this;
 }
 
 util.inherits(Terrain, GameObject);
+
+Terrain.prototype.convert = function(){
+  this.forEachBlock(function(block, position, matrix){
+    matrix[y][x] = blocks.getBlockById(matrix[y][x]);
+  });
+}
 
 Terrain.prototype.forEachBlock = function(cb){
   for(y = 0, lenA = this.matrix.length; y < lenA; y++) {
@@ -26,8 +35,16 @@ Terrain.prototype.getBlock = function(index){
 }
 
 Terrain.prototype.replaceBlock = function(index, block){
-  this.matrix[index.y][index.x] = block;
-  
+  if(typeof block === "number") {
+    this.matrix[index.y][index.x] = blocks.getElementById(block);
+  }
+  else if(typeof block === "string") {
+    this.matrix[index.y][index.x] = blocks[block];
+  }
+  else{
+    this.matrix[index.y][index.x] = block;
+  }
+    
   return this;
 }
 

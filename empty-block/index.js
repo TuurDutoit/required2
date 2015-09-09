@@ -3,9 +3,10 @@ var Block = require("../block");
 var EventEmitter = require("../event-emitter");
 var util = require("util");
 
-var EmptyBlock = function(texture, ID, offset, dimensions, angle) {
+var EmptyBlock = function() {
   EventEmitter.call(this);
-  this.ID = 0;
+  this.name = "empty";
+  this.id = 0;
   this.offset = new Vector();
   this.dimensions = new Vector();
   this.angle = 0;

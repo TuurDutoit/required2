@@ -1,8 +1,9 @@
 var renderer = require("../renderer");
+var Vector = require("../Vector");
 
-var Block = function(texture, ID, offset, dimensions, angle) {
+var Block = function(name, id, texture, offset, dimensions, angle) {
   this.texture = texture;
-  this.ID = ID;
+  this.id = id;
   this.offset = offset || new Vector();
   this.dimensions = dimensions || new Vector();
   this.angle = angle || 0;

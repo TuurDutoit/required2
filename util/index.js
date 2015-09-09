@@ -35,3 +35,5 @@ if(typeof Object.create !== "function") {
     return new F();
   }
 }
+
+module.exports = util;

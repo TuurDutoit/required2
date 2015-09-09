@@ -4,7 +4,7 @@ var EventEmitter = require("../event-emitter");
 var renderer = require("../renderer");
 var input = require("../input");
 var standards = require("../standards");
-var util = require("util");
+var util = require("../util");
 
 var Player = function(image, position, dimensions, angle){
   EventEmitter.call(this);
