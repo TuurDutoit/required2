@@ -8,6 +8,8 @@ Input = {
   keys: {},
   mapKey: function(keyCode, name){
     Input.keyCodes[keyCode.toString()] = name;
+    
+    return Input;
   },
   handlerUp: function(event){
     Input.keys[Input.keyCodes[event.keyCode.toString()]] = false;

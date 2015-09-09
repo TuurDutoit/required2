@@ -6,7 +6,14 @@ canvas.width   = 300;
 canvas.height  = 300;
 var context	   = canvas.getContext("2d"); 
 
-module.exports = {
+var drawCanvas = {
+  drawOnRotatedCanvas: function(position, angle, cb) {
+    context.save(); 
+    context.translate(position.x, position.y); 
+    context.rotate(angle);
+    cb();
+    context.restore();
+  },    
   canvasDimensions: function(){
     return new Vector(canvas.width, canvas.height);
   },
@@ -19,11 +26,9 @@ module.exports = {
   },
   drawImage: function(image, position, dimensions, angle){
     if(angle){
-      context.save(); 
-      context.translate(position.x, position.y); 
-      context.rotate(angle); 
-      context.drawImage(image, 0, 0, dimensions.x, dimensions.y);
-      context.restore();
+      drawCanvas.drawOnRotatedCanvas(position, angle, function(){
+        context.drawImage(image, 0, 0, dimensions.x, dimensions.y);
+      });
     }
     else{
       context.drawImage(image, position.x, position.y, dimensions.x, dimensions.y);
@@ -31,11 +36,9 @@ module.exports = {
   },
   drawSprite: function(image, position, dimensions, angle, sheetPosition, sheetDimensions){
     if(angle){
-      context.save(); 
-      context.translate(position.x, position.y); 
-      context.rotate(angle); 
-      context.drawImage(image, sheetPosition.x, sheetPosition.y, sheetDimensions.x, sheetDimensions.y, 0, 0, dimensions.x, dimensions.y);
-      context.restore();
+      drawCanvas.drawOnRotatedCanvas(position, angle, function(){ 
+        context.drawImage(image, sheetPosition.x, sheetPosition.y, sheetDimensions.x, sheetDimensions.y, 0, 0, dimensions.x, dimensions.y);
+      });
     }
     else{
       context.drawImage(image, sheetPosition.x, sheetPosition.y, sheetDimensions.x, sheetDimensions.y, position.x, position.y, dimensions.x, dimensions.y);
@@ -43,11 +46,9 @@ module.exports = {
   },
   drawRectangle: function(position, dimensions, angle){
     if(angle){
-      context.save(); 
-      context.translate(position.x, position.y); 
-      context.rotate(angle); 
-      context.fillRect(0,0,dimensions.x, dimensions.y);  
-      context.restore();
+      drawCanvas.drawOnRotatedCanvas(position, angle, function(){
+        context.fillRect(0,0,dimensions.x, dimensions.y);  
+      });
     }
     else{
       context.fillRect(position.x, position.y ,dimensions.x, dimensions.y);
@@ -55,13 +56,10 @@ module.exports = {
   },
   drawText: function(text, font, position, angle){
     context.font = font;
-    console.log(angle);
     if(angle){
-      context.save(); 
-      context.translate(position.x, position.y); 
-      context.rotate(angle); 
-      context.fillText(text,0,0);
-      context.restore();
+      drawCanvas.drawOnRotatedCanvas(position, angle, function(){
+        context.fillText(text,0,0);
+      }); 
     }
     else{
       context.fillText(text, position.x, position.y);
@@ -69,6 +67,8 @@ module.exports = {
   },
   DOMElement: canvas
 };
+module.exports = drawCanvas;
+  
 
 events.on("loop:update:before", function(){
   context.clearRect(0, 0, canvas.width, canvas.height);  
