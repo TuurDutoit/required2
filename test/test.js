@@ -13,6 +13,7 @@ var Block = require("../block");
 var EmptyBlock = require("../empty-block");
 var input = require("../input");
 var Player = require("../player");
+var Background = require("../background");
 
 loop.updateFps(60);
 Game = {
@@ -23,6 +24,7 @@ Game = {
 var Play = new Player(document.getElementById("Icon"), new Vector(), new Vector(36,72), 0);
 leTestScene = new Scene();
 leTestScene.addCamera(new Camera(new GameObject("Q", "Q", null, new Vector(0,0), new Vector(100,100), null), new Vector(300, 300), 0, new Vector(0,0), new Vector(0,0), 0, 0));
+leTestScene.appendChild(new Background(document.getElementById("background-scene1"), new Vector(), new Vector(300,300))); 
 leTestScene.appendChild(new Terrain([[1,1,1,1,1,1,1,1],
                                      [1, , , , , , ,1],
                                      [1, , , , , , ,1],

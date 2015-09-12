@@ -17,7 +17,7 @@ var EmptyBlock = function() {
 util.inherits(EmptyBlock, Block);
 
 EmptyBlock.prototype.update = function() {
-  
+
 }
 
 EmptyBlock.prototype.draw = function(position, camera) {

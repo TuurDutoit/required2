@@ -67,9 +67,11 @@ var drawCanvas = {
   },
   DOMElement: canvas
 };
-module.exports = drawCanvas;
-  
+
 
 events.on("loop:update:before", function(){
-  context.clearRect(0, 0, canvas.width, canvas.height);  
+  drawCanvas.clearCanvas();  
 });
+
+module.exports = drawCanvas;
+  
