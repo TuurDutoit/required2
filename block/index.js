@@ -1,5 +1,5 @@
 var renderer = require("../renderer");
-var Vector = require("../Vector");
+var Vector = require("../vector");
 
 var Block = function(name, id, texture, offset, dimensions, angle) {
   this.texture = texture;

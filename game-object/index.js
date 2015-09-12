@@ -1,6 +1,11 @@
 var Vector = require("../vector");
 var EventEmitter = require("../event-emitter");
+var events = require("../events");
 var util = require("../util");
+
+var rmove = /^move:/;
+var rrotate = /^rotate:/;
+var rchild = /^child:/;
 
 
 
@@ -14,25 +19,80 @@ var GameObject = function(position, dimensions, angle) {
   this.parent = null;
   this.collider = null;
   
+  this.pipe(events, function(self, other, event, args) {
+    args.unshift(self);
+    other.emit("object:"+event, args);
+    
+    if(rmove.test(event)) {
+      args.unshift(event);
+      self.emit("move", args);
+      self.emit("change", args);
+    }
+    else if(rrotate.test(event)) {
+      args.unshift(event);
+      self.emit("rotate", args);
+      self.emit("change", args);
+    }
+    else if(rchild.test(event)) {
+      args.unshift(event);
+      self.emit("child", args);
+    }
+  });
+  
   return this;
 }
 
 util.inherits(GameObject, EventEmitter);
 
 
-GameObject.prototype.move = function(v){
+GameObject.prototype.moveBy = GameObject.prototype.move = function(v, moveCollider){
+  if(moveCollider !== false && this.collider) {
+    this.collider.moveBy(v);
+  }
+  
   this.position.add(v);
+  this.emit("move:by", [v]);
   
   return this;
 }
 
-GameObject.prototype.rotate = function(angle) {
+GameObject.prototype.moveTo = function(v, moveCollider) {
+  if(moveCollider !== false && this.collider) {
+    var relative = this.absoluteToRelativePosition(this.collider.pos);
+    collider.moveTo(v.add(relative));
+  }
+  
+  this.position.copy(v);
+  this.emit("move:to", [v]);
+  
+  return this;
+}
+
+GameObject.prototype.rotateBy = GameObject.prototype.rotate = function(angle, moveCollider) {
+  if(moveCollider !== false && this.collider && this.collider.setAngle) {
+    var diff = this.collider.angle - this.angle;
+    this.collider.setAngle(this.collider.angle + angle);
+  }
+  
   this.angle += angle;
+  this.emit("rotate:by", [angle]);
   
   return this;
 }
 
-GameObject.prototype.rotateAround = function(v, angle) {
+GameObject.prototype.rotateTo = function(angle, moveCollider) {
+  if(moveCollider !== false && this.collider && this.collider.setAngle) {
+    var diff = this.collider.angle - this.angle;
+    this.collider.setAngle(angle + diff);
+  }
+  
+  this.angle = angle;
+  this.emit("rotate:to", [angle]);
+  
+  return this;
+}
+
+GameObject.prototype.rotateAround = function(v, angle, moveCollider) {
   var pos = this.position;
   var s = Math.sin(angle);
   var c = Math.cos(angle);
@@ -41,13 +101,20 @@ GameObject.prototype.rotateAround = function(v, angle) {
   pos.x = pos.x * c - pos.y * s;
   pos.y = pos.x * s + pos.y * c;
   pos.add(v);
-  this.rotate(angle);
+  
+  // moves collider, if necessary, and emits move:to, move and change events
+  this.moveTo(pos, moveCollider);
+  this.rotateBy(angle, moveCollider);
+  this.emit("rotate:around", [v, angle]);
   
   return this;
 }
 
+
+
+
 GameObject.prototype.absolutePosition = function() {
-  return this.relativeToAbsolute(this.position);
+  return this.relativeToAbsolutePosition(this.position);
 }
 
 GameObject.prototype.relativeToAbsolutePosition = function(v) {
@@ -70,39 +137,53 @@ GameObject.prototype.absoluteToRelativeAngle = function(angle) {
   return angle - this.absoluteAngle();
 }
 
-GameObject.prototype.insertChild = function(child, index) {
+
+
+
+
+
+GameObject.prototype.insertChild = GameObject.prototype.insertChildAt = function(child, index) {
   this.children.splice(index, 0, child);
+  this.emit("child:insert", [child, index]);
   
   return this;
 }
 
 GameObject.prototype.appendChild = function(child) {
   this.children.push(child);
+  this.emit("child:insert:append", [child]);
+  this.emit("child:insert", [child, this.children.length - 1]);
   
   return this;
 }
 
 GameObject.prototype.prependChild = function(child) {
   this.children.unshift(child);
+  this.emit("child:insert:prepend", [child]);
+  this.emit("child:insert", [child, 0]);
   
   return this;
 }
 
-GameObject.prototype.insertBefore = function(child, reference) {
+GameObject.prototype.insertChildBefore = function(child, reference) {
   var index = this.getChildIndex(reference);
   
   if(index > -1) {
-    this.children.insertChild(child, index);
+    this.insertChild(child, index);
+    this.emit("child:insert:before", [child, reference, index]);
+    this.emit("child:insert", [child, index]);
   }
   
   return this;
 }
 
-GameObject.prototype.insertAfter = function(child, reference) {
+GameObject.prototype.insertChildAfter = function(child, reference) {
   var index = this.ghetChildIndex(reference);
   
   if(index > -1) {
-    this.children.insertChild(child, index+1);
+    this.insertChild(child, index+1);
+    this.emit("child:insert:after", [child, reference, index]);
+    this.emit("child:insert", [child, index]);
   }
   
   return this;
@@ -117,7 +198,9 @@ GameObject.prototype.removeChild = function(child) {
 
 GameObject.prototype.removeChildAt = function(index) {
   if(index > -1) {
+    var child = this.children[index];
     this.children.splice(index, 1);
+    this.emit("child:remove", [child, index]);
   }
   
   return this;
@@ -127,7 +210,10 @@ GameObject.prototype.replaceChild = function(child, old) {
   var index = this.getChildIndex(old);
   
   if(index > -1) {
-    this.splice(index, 1, child);
+    this.children.splice(index, 1, child);
+    this.emit("child:replace", [child, old, index]);
+    this.emit("child:remove", [old, index]);
+    this.emit("child:insert", [child, index]);
   }
   
   return this;
@@ -137,23 +223,15 @@ GameObject.prototype.getChildIndex = function(child) {
   return this.children.indexOf(child);
 }
 
+GameObject.prototype.getChildAt = GameObject.prototype.getChild = function(index) {
+  return this.children[index];
+}
+
 GameObject.prototype.forEachChild = function(cb) {
   for(var i = 0; i < this.children.length; i++) {
     cb(this.children[i], i, this.children);
   }
   
-  return this;
-}
-
-GameObject.prototype.init = function() {
-  return this;
-}
-
-GameObject.prototype.update = function() {
- return this; 
-}
-
-GameObject.prototype.draw = function(camera) {
   return this;
 }
 

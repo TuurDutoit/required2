@@ -8,7 +8,7 @@ var EventEmitter = function() {
 
 EventEmitter.prototype.on = function(event, listener, context) {
   var listeners = this._eventemitter.events[event];
-  listener.__context__ = context || null;
+  listener.__context__ = context || this;
   if(! listeners) {
     var listeners = this._eventemitter.events[event] = [];
   }
@@ -116,11 +116,12 @@ EventEmitter.prototype.proxy = function(other, execPush, execFrom) {
 
 
 function emit(emitter, event, args) {
+  var args = args || [];
   var listeners = emitter._eventemitter.events[event];
   if(listeners) {
     for(var i = 0; i < listeners.length; i++) {
       var listener = listeners[i];
-      listener.apply(listener.__context__ || null, args);
+      listener.apply(listener.__context__, args);
     }
   }
   

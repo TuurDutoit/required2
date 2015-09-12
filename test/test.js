@@ -35,7 +35,7 @@ events.on("loop:draw", function(){
 });
 
 events.on("loop:update", function(){
-  leTestScene.update()
+  leTestScene.update();
 });
 
 events.on("loop:update:before", function(){
