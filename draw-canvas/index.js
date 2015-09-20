@@ -2,8 +2,8 @@ var Vector = require("../vector");
 var events = require("../events");
 
 var canvas = document.createElement('canvas');
-canvas.width   = 300;
-canvas.height  = 300;
+canvas.width   = 324;
+canvas.height  = 324;
 var context	   = canvas.getContext("2d"); 
 
 var drawCanvas = {
@@ -54,15 +54,18 @@ var drawCanvas = {
       context.fillRect(position.x, position.y ,dimensions.x, dimensions.y);
     }
   },
-  drawText: function(text, font, position, angle){
-    context.font = font;
+  drawText: function(text, position, size, angle, font, color){
+    
+    context.font = size.toString() +"px "+font;
+    console.log(position);
+    console.log(angle)
     if(angle){
       drawCanvas.drawOnRotatedCanvas(position, angle, function(){
         context.fillText(text,0,0);
       }); 
     }
     else{
-      context.fillText(text, position.x, position.y);
+      context.fillText(text, position.x, position.y + size);
     }
   },
   DOMElement: canvas

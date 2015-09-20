@@ -15,8 +15,10 @@ Block.prototype.update = function() {
   
 }
 
-Block.prototype.draw = function(position, camera) {
-  renderer.drawImage(this.texture, position.add(this.offset), this.dimensions, this.angle);
+Block.prototype.draw = function(camera, position, angle) {
+  camera.drawOnScreen(this.texture, position.add(this.offset), this.dimensions, this.angle + angle);
+  
+  return this;
 }
 
 

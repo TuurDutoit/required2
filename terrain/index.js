@@ -4,11 +4,13 @@ var EventEmitter = require("../event-emitter");
 var util = require("../util");
 var blocks =  require("../blocks");
 
-var Terrain = function(matrix, position){
+var Terrain = function(matrix, patches, position, angle){
   EventEmitter.call(this);
   this.matrix = matrix;
   this.position = position || new Vector();
+  this.angle = angle || 0;
   this.blockSize = 36;
+  this.attachTerrainPatches(patches);
   this.convert();
   
   return this;
@@ -16,15 +18,30 @@ var Terrain = function(matrix, position){
 
 util.inherits(Terrain, GameObject);
 
+Terrain.prototype.attachTerrainPatch = function(patch) {
+  this.patches.push(patch);
+  patch.attachTerrain(this);
+  
+  return this;
+}
+
+Terrain.prototype.attachTerrainPatches = function(patches) {
+  this.patches = [];
+  if(patches){
+    for(i = 0, len = patches.length; i < len; i++) { 
+      this.attachTerrainPatch(patches[i]);
+    }
+  }
+  
+  return this;
+}
+
 Terrain.prototype.convert = function(){
   this.forEachBlock(function(block, position, matrix){
-    if(typeof matrix[y][x] === "number"){
-      matrix[y][x] = blocks.getBlockById(matrix[y][x]);
-    }
-    else if(typeof matrix[y][x] === "undefined"){
-      matrix[y][x] = blocks.getBlockById(0);
-    }
+    matrix[position.y][position.x] = blocks.getBlockById(matrix[position.y][position.x]);
   });
+  
+  return this;
 }
 
 Terrain.prototype.forEachBlock = function(cb){
@@ -33,6 +50,8 @@ Terrain.prototype.forEachBlock = function(cb){
       cb(this.matrix[y][x], new Vector(x,y), this.matrix);
     }
   }
+  
+  return this;
 }
 
 Terrain.prototype.getBlock = function(index){
@@ -54,19 +73,20 @@ Terrain.prototype.replaceBlock = function(index, block){
 }
 
 Terrain.prototype.start = function(){
-
+  return this;
 }
 
 Terrain.prototype.update = function(){
-
+  return this;
 }
 
 Terrain.prototype.draw = function(camera){
-  var pos = this.position;
-  var blockS = this.blockSize;
+  var self = this; 
   this.forEachBlock(function(block, position){
-    block.draw(position.add(pos).multiply(blockS));
+    block.draw(camera, position.add(self.position).multiply(self.blockSize), self.angle);
   });
+  
+  return this;
 }
 
 module.exports = Terrain;

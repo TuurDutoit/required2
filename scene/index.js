@@ -85,6 +85,14 @@ Scene.prototype.forEachChild = function(cb) {
   return this;
 }
 
+Scene.prototype.forEachCamera = function(cb) {
+  for(var i = 0; i < this.cameras.length; i++) {
+    cb(this.cameras[i], i, this.cameras);
+  }
+  
+  return this;
+}
+
 Scene.prototype.addCamera = function(camera){
   this.cameras.push(camera);
 }
@@ -102,13 +110,20 @@ Scene.prototype.update = function() {
   this.forEachChild(function(child) {
     child.update();
   });
+  this.forEachCamera(function(camera){
+    camera.update();
+  });
   
   return this;
 }
 
 Scene.prototype.draw = function() {
-  this.forEachChild(function(child) {
-    child.draw();
+  var self = this;
+  self.forEachCamera(function(camera){
+    self.forEachChild(function(child) {
+      child.draw(camera);
+    });
+    camera.draw();
   });
   
   return this;

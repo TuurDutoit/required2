@@ -94,13 +94,7 @@ GameObject.prototype.rotateTo = function(angle, moveCollider) {
 
 GameObject.prototype.rotateAround = function(v, angle, moveCollider) {
   var pos = this.position;
-  var s = Math.sin(angle);
-  var c = Math.cos(angle);
-  
-  pos.sub(v);
-  pos.x = pos.x * c - pos.y * s;
-  pos.y = pos.x * s + pos.y * c;
-  pos.add(v);
+  this.position.rotateAround(v, angle)
   
   // moves collider, if necessary, and emits move:to, move and change events
   this.moveTo(pos, moveCollider);
@@ -110,15 +104,33 @@ GameObject.prototype.rotateAround = function(v, angle, moveCollider) {
   return this;
 }
 
+GameObject.prototype.rotateAroundMiddle = function(angle) {
+  this.rotateAround(this.getMiddle(), angle);
+  
+  return this;
+}
 
+GameObject.prototype.rotateAroundOrigin = function(angle) {
+  this.rotateAround(new Vector(), angle);
+  
+  return this;
+}
 
+GameObject.prototype.getMiddle = function(){
+  return this.dimensions.clone().divide(2).add(this.position).rotateAround(this.position, this.angle);
+}
 
 GameObject.prototype.absolutePosition = function() {
   return this.relativeToAbsolutePosition(this.position);
 }
 
 GameObject.prototype.relativeToAbsolutePosition = function(v) {
-  return this.parent.absolutePosition().clone().add(v);
+  if(this.parent){
+    return this.parent.absolutePosition().clone().add(v);
+  }
+  else{
+    return v.clone();
+  }
 }
 
 GameObject.prototype.absoluteToRelativePosition = function(v) {
@@ -126,7 +138,12 @@ GameObject.prototype.absoluteToRelativePosition = function(v) {
 }
 
 GameObject.prototype.absoluteAngle = function() {
-  return this.parent.absoluteAngle() + this.angle;
+  if(this.parent){
+    return this.parent.absoluteAngle() + this.angle;
+  }
+  else{
+    return this.angle;
+  }
 }
 
 GameObject.prototype.relativeToAbsoluteAngle = function(angle) {
@@ -143,6 +160,9 @@ GameObject.prototype.absoluteToRelativeAngle = function(angle) {
 
 
 GameObject.prototype.insertChild = GameObject.prototype.insertChildAt = function(child, index) {
+  if(!this.children){
+    this.children = [];
+  }
   this.children.splice(index, 0, child);
   this.emit("child:insert", [child, index]);
   
@@ -150,6 +170,10 @@ GameObject.prototype.insertChild = GameObject.prototype.insertChildAt = function
 }
 
 GameObject.prototype.appendChild = function(child) {
+  if(!this.children){
+    this.children = [];
+  }
+  child.parent = this;
   this.children.push(child);
   this.emit("child:insert:append", [child]);
   this.emit("child:insert", [child, this.children.length - 1]);
@@ -158,6 +182,9 @@ GameObject.prototype.appendChild = function(child) {
 }
 
 GameObject.prototype.prependChild = function(child) {
+  if(!this.children){
+    this.children = [];
+  }
   this.children.unshift(child);
   this.emit("child:insert:prepend", [child]);
   this.emit("child:insert", [child, 0]);
@@ -228,14 +255,25 @@ GameObject.prototype.getChildAt = GameObject.prototype.getChild = function(index
 }
 
 GameObject.prototype.forEachChild = function(cb) {
-  for(var i = 0; i < this.children.length; i++) {
-    cb(this.children[i], i, this.children);
+  if(this.children) {
+    for(var i = 0; i < this.children.length; i++) {
+      cb(this.children[i], i, this.children);
+    }
   }
   
   return this;
 }
 
+GameObject.prototype.init = function() {
+  return this; 
+}
 
+GameObject.prototype.update = function() {
+  return this;
+}
 
+GameObject.prototype.draw = function(camera) {
+  return this;
+}
 
 module.exports = GameObject;

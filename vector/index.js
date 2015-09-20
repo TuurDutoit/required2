@@ -8,13 +8,20 @@ Vector.prototype.reset = function() {
   return this;
 }
 
-Vector.prototype.rotateAround = function(v, angle){
+Vector.prototype.rotateAround = function(v, angle) {
   var s = Math.sin(angle);
   var c = Math.cos(angle);
   this.sub(v);
-  this.x = this.x * c - this.y * s;
-  this.y = this.x * s + this.y * c;
+  var x = c * (this.x) - s * (this.y);
+  var y = s * (this.x) + c * (this.y);
+  this.x = x;
+  this.y = y;
   this.add(v);
+  return this;
+}
+
+Vector.prototype.rotateAroundOrigin = function(angle) {
+  this.rotateAround(new Vector(), angle)
   
   return this;
 }
@@ -29,6 +36,63 @@ Vector.prototype.multiply = function(V){
     this.y *= V.y;
   }
   
+  return this;
+}
+
+Vector.prototype.divide = function(V){
+  if(typeof V === "number") {
+    this.x /= V;
+    this.y /= V;
+  }
+  else{
+    this.x /= V.x;
+    this.y /= V.y;
+  }
+  
+  return this;
+}
+
+Vector.prototype.addX = function(V) {
+  if(typeof V === "number") {
+    this.x += V;
+  }
+  else{
+    this.x += V.x;
+  }
+
+  return this;
+}
+
+Vector.prototype.addY = function(V) {
+  if(typeof V === "number") {
+    this.y += V;
+  }
+  else{
+    this.y += V.y;
+  }
+
+  return this;
+}
+
+Vector.prototype.subX = function(V) {
+  if(typeof V === "number") {
+    this.x -= V;
+  }
+  else{
+    this.x -= V.x;
+  }
+
+  return this;
+}
+
+Vector.prototype.subY = function(V) {
+  if(typeof V === "number") {
+    this.y -= V;
+  }
+  else{
+    this.y += V.y;
+  }
+
   return this;
 }
 

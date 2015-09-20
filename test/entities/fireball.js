@@ -6,25 +6,25 @@ var input = require("../input");
 var standards = require("../standards");
 var util = require("../util");
 
-var Player = function(image, position, dimensions, angle){
+var Fireball = function(image, position, dimensions){
   EventEmitter.call(this);
 
   this.image = image;
   this.position = position || new Vector();
   this.dimensions = dimensions || new Vector();
-  this.angle = angle || 0;
+  this.angle = 0;
   
   return this;
 }
 
-util.inherits(Player, GameObject);
+util.inherits(Fireball, GameObject);
 
-Player.prototype.start = function(){
+Fireball.prototype.start = function(){
 
 }
 
-Player.prototype.update = function(){
-  //this.rotateAround(new Vector(150, 150), 0.05);
+Fireball.prototype.update = function(){
+  
   if(input.keyStatus("up")){
     this.move(new Vector(0,-2 * standards.speed));
   }
@@ -41,8 +41,8 @@ Player.prototype.update = function(){
   return this;
 }
 
-Player.prototype.draw = function(camera){
-  camera.drawOnScreen(this.image, this.position, this.dimensions, this.angle);
+Fireball.prototype.draw = function(camera){
+  renderer.drawImage(this.image, this.position, this.dimensions, this.angle);
 }
 
-module.exports = Player;
+module.exports = Fireball;
