@@ -11,7 +11,7 @@ var Ui = function(image, position, dimensions, angle) {
   this.position = position || new Vector();
   this.dimensions = dimensions || new Vector();
   this.angle = angle || 0;
-  this.unaffectedByZoom = true;
+  //this.unaffectedByZoom = true;
   return this;
 }
 

@@ -57,8 +57,6 @@ var drawCanvas = {
   drawText: function(text, position, size, angle, font, color){
     
     context.font = size.toString() +"px "+font;
-    console.log(position);
-    console.log(angle)
     if(angle){
       drawCanvas.drawOnRotatedCanvas(position, angle, function(){
         context.fillText(text,0,0);

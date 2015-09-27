@@ -27,10 +27,16 @@ Game = {
 Play = new Player(new Image(document.getElementById("Icon")), new Vector(), new Vector(36,72), 0);
 leTestScene = new Scene();
 CAMOBJ = new GameObject(new Vector(), new Vector(), 0);
-CAMERA = new Camera(CAMOBJ, new Vector(324, 324), 0, new Vector(0,0), new Vector(0,0), 0, 1);
+CAMERA = new Camera(Play, new Vector(324, 324), 0, new Vector(0,0), new Vector(324, 324), 0, 1);
 CAMERA.appendChild(new Ui("BATMAN", new Vector(0, 0), 0));
+CAMERAB = new Camera(Play, new Vector(324, 324), 0, new Vector(0,324/2), new Vector(324/2, 324/2), 0, 1);
+CAMERAC = new Camera(Play, new Vector(324, 324), 0, new Vector(324/2,324/2), new Vector(324/2, 324/2), 0, 1);
+CAMERAD = new Camera(CAMOBJ, new Vector(324, 324), 0, new Vector(324/2,0), new Vector(324/2, 324/2), 0, 1);
 leTestScene.addCamera(CAMERA);
-//leTestScene.appendChild(new Background(new Image(document.getElementById("background-scene1")), new Vector(), new Vector(324,324)));
+//leTestScene.addCamera(CAMERAB);
+//leTestScene.addCamera(CAMERAC);
+//leTestScene.addCamera(CAMERAD);
+leTestScene.appendChild(new Background(new Image(document.getElementById("background-scene1")), new Vector(), new Vector(324,324)));
 
 TERRAIN = new Terrain([[1,1,1,1,1,1,1,1,1],
                        [1, , , , , , , ,1],
