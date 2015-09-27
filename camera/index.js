@@ -5,7 +5,7 @@ var renderer= require("../renderer");
 var input = require("../input");
 var util = require("../util");
 
-var Camera = function(obj, dimensions, angle, displayPosition, displayDimensions, displayAngle){
+var Camera = function(obj, dimensions, angle, displayPosition, displayDimension, displayRotation, zoom){
   EventEmitter.call(this);
   this.active = true;
   this.displaying = false;
@@ -13,10 +13,11 @@ var Camera = function(obj, dimensions, angle, displayPosition, displayDimensions
   this.dimensions = dimensions || new Vector();
   this.angle = angle || 0;
   this.displayPosition = displayPosition || new Vector();
-  this.displayDimensions = displayDimensions || this.dimensions;
-  this.displayAngle = displayAngle || this.angle;
-  this.calculateZoomDimensions();
+  this.displayDimension = displayDimension || new Vector();
+  this.displayRotation = displayRotation || 0;
+  this.zoom = zoom || 1;
   this.offset = new Vector(0,0);
+
   return this;
 }
 
@@ -25,10 +26,10 @@ util.inherits(Camera, GameObject);
 Camera.prototype.update = function() {
   //console.log("a");
   if(input.keyStatus("+")){
-    this.zoom(1.01);
+    this.zoom += 0.005;
   }
   if(input.keyStatus("-")){
-    this.zoom(0.99);
+    this.zoom -= 0.005;
   }
   if(input.keyStatus("Z")){
     this.move(new Vector(0, -2));
@@ -123,10 +124,10 @@ Camera.prototype.rotate = function(angle) {
 
 Camera.prototype.rotateAround = function(v, angle) {
   if(v instanceof Vector){
-    this.offset.add(this.position).rotateAround(v, angle).sub(this.position);
+    this.offset.rotateAround(v, angle);
   }
   else{
-    this.offset.add(this.position).rotateAround(v.position, angle).sub(this.position);
+    this.offset.rotateAround(v.position, angle);
   }
   this.rotate(angle);
   
@@ -146,24 +147,17 @@ Camera.prototype.rotateAroundOrigin = function(angle) {
 }
 
 Camera.prototype.getMiddle = function(){
-  //console.log(this.dimensions.clone().divide(2).add(this.absolutePosition()).rotateAround(this.absolutePosition(), this.angle));
-  return this.dimensions.clone().divide(2).add(this.absolutePosition()).rotateAround(this.absolutePosition(), this.angle);
+  console.log(this.dimensions.clone().divide(2).add(this.position).add(this.offset).rotateAround(this.position.clone().add(this.offset), this.angle));
+  return this.dimensions.clone().divide(2).divide(this.zoom).add(this.absolutePosition()).rotateAround(this.position.clone().add(this.offset), this.angle);
 }
 
 Camera.prototype.absolutePosition = function() {
   return this.position.clone().add(this.offset);
 }
 
-Camera.prototype.calculateZoomDimensions = function() {
-  this.zoomDimensions = this.displayDimensions.clone().divide(this.dimensions);
-  console.log(this.zoomDimensions);
-  return this;
-}
-
-Camera.prototype.zoom = function(toZoom) {
+Camera.prototype.ApplyZoom = function(toZoom) {
   if(toZoom >= 0){
-    this.dimensions.divide(toZoom);  
-    this.calculateZoomDimensions();
+    this.zoom *= toZoom;
   }
   else{
     console.log("Invalid zoom!");
@@ -237,10 +231,10 @@ Camera.prototype.forEachUi = Camera.prototype.forEachChild;
 Camera.prototype.drawOnScreen = function(image, position, dimensions, angle, unaffectedByZoom) {
    var absolutePosition = this.absolutePosition(); 
   if(unaffectedByZoom){
-    image.draw(position.clone().rotateAround(this.absolutePosition(), -this.angle).sub(this.absolutePosition()).add(this.displayPosition), dimensions.clone(), angle - this.angle);
+    image.draw(position.clone().rotateAround(absolutePosition, -this.angle).sub(absolutePosition), dimensions.clone(), angle -this.angle);
   }
   else{
-    image.draw(position.clone().rotateAround(this.absolutePosition(), -this.angle).sub(this.absolutePosition()).multiply(this.zoomDimensions).add(this.displayPosition), dimensions.clone().multiply(this.zoomDimensions), angle - this.angle);  
+    image.draw(position.clone().rotateAround(absolutePosition, -this.angle).sub(absolutePosition).multiply(this.zoom), dimensions.clone().multiply(this.zoom), angle - this.angle);  
   }
 
   return this;
@@ -249,10 +243,10 @@ Camera.prototype.drawOnScreen = function(image, position, dimensions, angle, una
 Camera.prototype.drawTextOnScreen = function(text, position, size, angle, font, color, unaffectedByZoom) {
   var absolutePosition = this.absolutePosition(); 
   if(unaffectedByZoom){
-    renderer.drawText(text, position.clone().rotateAround(this.absolutePosition(), -this.angle).sub(this.absolutePosition()).add(this.displayPosition), size, angle - this.angle, font, color);
+    renderer.drawText(text, position.clone().rotateAround(absolutePosition, -this.angle).sub(absolutePosition), size, angle - this.angle, font, color);
   }
   else{
-     renderer.drawText(text, position.clone().rotateAround(this.absolutePosition(), -this.angle).sub(this.absolutePosition()).multiply(this.zoomDimensions).add(this.displayPosition), size * this.zoomDimensions.x, angle - this.angle, font, color);
+     renderer.drawText(text, position.clone().rotateAround(absolutePosition, -this.angle).sub(absolutePosition).multiply(this.zoom), size * this.zoom, angle - this.angle, color);
   }
 }
 
