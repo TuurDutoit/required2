@@ -39,17 +39,16 @@ var GameObject = function(position, dimensions, angle) {
     }
   });
   
+  this._init();
+  
   return this;
 }
 
 util.inherits(GameObject, EventEmitter);
 
 
-<<<<<<< HEAD
 
 
-=======
->>>>>>> parent of 023e3ac... Some changes/additions to game-object
 GameObject.prototype.moveBy = GameObject.prototype.move = function(v, moveCollider){
   if(moveCollider !== false && this.collider) {
     this.collider.moveBy(v);
@@ -163,6 +162,60 @@ GameObject.prototype.absoluteToRelativeAngle = function(angle) {
 
 
 
+GameObject.prototype.insertAt = function(parent, index) {
+  parent.insertChildAt(this, index);
+  
+  return this;
+}
+
+GameObject.prototype.appendTo = function(parent) {
+  parent.appendChild(this);
+  
+  return this;
+}
+
+GameObject.prototype.prependTo = function(parent) {
+  parent.prependChild(this);
+  
+  return this;
+}
+
+GameObject.prototype.insertBefore = function(sibling) {
+  if(sibling.parent) {
+    sibling.parent.insertChildBefore(this, sibling);
+  }
+  
+  return this;
+}
+
+GameObject.prototype.insertAfter = function(sibling) {
+  if(sibling.parent) {
+    sibling.parent.insertChildAfter(this, sibling);
+  }
+  
+  return this;
+}
+
+GameObject.prototype.insertSiblingBefore = function(sibling) {
+  if(this.parent) {
+    this.parent.insertChildBefore(sibling, this);
+  }
+  
+  return this;
+}
+
+GameObject.prototype.insertSiblingAfter = function(sibling) {
+  if(this.parent) {
+    this.parent.insertChildAfter(sibling, this);
+  }
+  
+  return this;
+}
+
+
+
+
+
 
 GameObject.prototype.insertChild = GameObject.prototype.insertChildAt = function(child, index) {
   if(!this.children){
@@ -170,6 +223,7 @@ GameObject.prototype.insertChild = GameObject.prototype.insertChildAt = function
   }
   this.children.splice(index, 0, child);
   this.emit("child:insert", [child, index]);
+  child.emit("insert", [this, index]);
   
   return this;
 }
@@ -180,8 +234,12 @@ GameObject.prototype.appendChild = function(child) {
   }
   child.parent = this;
   this.children.push(child);
+  
+  var index = this.children.length - 1;
   this.emit("child:insert:append", [child]);
-  this.emit("child:insert", [child, this.children.length - 1]);
+  this.emit("child:insert", [child, index]);
+  child.emit("insert:append", [this]);
+  child.emit("insert", [this, index]);
   
   return this;
 }
@@ -193,11 +251,12 @@ GameObject.prototype.prependChild = function(child) {
   this.children.unshift(child);
   this.emit("child:insert:prepend", [child]);
   this.emit("child:insert", [child, 0]);
+  child.emit("insert:prepend", [this]);
+  child.emit("insert", [this, 0]);
   
   return this;
 }
 
-<<<<<<< HEAD
 GameObject.prototype.prependChildren = function(children) {
   for(var i = children.length; i >= 0 ; i--) {
     this.prependChild(children[i]);
@@ -206,27 +265,27 @@ GameObject.prototype.prependChildren = function(children) {
 
 GameObject.prototype.insertChildBefore = function(child, sibling) {
   var index = this.getChildIndex(sibling);
-=======
-GameObject.prototype.insertChildBefore = function(child, reference) {
-  var index = this.getChildIndex(reference);
->>>>>>> parent of 023e3ac... Some changes/additions to game-object
   
   if(index > -1) {
     this.insertChild(child, index);
-    this.emit("child:insert:before", [child, reference, index]);
+    this.emit("child:insert:before", [child, sibling, index]);
     this.emit("child:insert", [child, index]);
+    child.emit("insert:before", [this, sibling, index]);
+    child.emit("insert", [this, index]);
   }
   
   return this;
 }
 
-GameObject.prototype.insertChildAfter = function(child, reference) {
-  var index = this.ghetChildIndex(reference);
+GameObject.prototype.insertChildAfter = function(child, sibling) {
+  var index = this.ghetChildIndex(sibling);
   
   if(index > -1) {
     this.insertChild(child, index+1);
-    this.emit("child:insert:after", [child, reference, index]);
+    this.emit("child:insert:after", [child, sibling, index]);
     this.emit("child:insert", [child, index]);
+    child.emit("insert:after", [this, sibling, index]);
+    child.emit("insert", [this, index]);
   }
   
   return this;
@@ -244,6 +303,7 @@ GameObject.prototype.removeChildAt = function(index) {
     var child = this.children[index];
     this.children.splice(index, 1);
     this.emit("child:remove", [child, index]);
+    child.emit("remove", [this, index]);
   }
   
   return this;
@@ -257,6 +317,10 @@ GameObject.prototype.replaceChild = function(child, old) {
     this.emit("child:replace", [child, old, index]);
     this.emit("child:remove", [old, index]);
     this.emit("child:insert", [child, index]);
+    old.emit("replace-by", [this, child, index]);
+    old.emit("remove", [this, index]);
+    child.emit("replace", [this, old, index]);
+    child.emit("insert", [this, index]);
   }
   
   return this;
@@ -320,15 +384,16 @@ GameObject.prototype._destroy = function(children) {
     });
   }
   
-GameObject.prototype.init = function() {
-  return this; 
-}
-
-GameObject.prototype.update = function() {
   return this;
 }
 
-GameObject.prototype.draw = function(camera) {
+GameObject.prototype._update = function() {
+  this.emit("update");
+  
+  this.forEachChild(function(child) {
+    child._update();
+  });
+  
   return this;
 }
 
