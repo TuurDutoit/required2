@@ -50,9 +50,9 @@ util.inherits(GameObject, EventEmitter);
 
 
 GameObject.prototype.moveBy = GameObject.prototype.move = function(v, moveCollider){
-  /**if(moveCollider !== false && this.collider) {
+  if(moveCollider !== false && this.collider) {
     this.collider.moveBy(v);
-  }**/
+  }
   
   this.position.add(v);
   this.emit("move:by", [v]);
@@ -72,13 +72,6 @@ GameObject.prototype.moveTo = function(v, moveCollider) {
   return this;
 }
 
-GameObject.prototype.moveToBy = function(v, speed) {
-  this.position.add(v.clone().sub(this.position).normalize().multiply(speed));
-  //this.move(v.clone().sub(this.position).normalize().multiply(speed));
-  
-  return this;
-}
-              
 GameObject.prototype.rotateBy = GameObject.prototype.rotate = function(angle, moveCollider) {
   if(moveCollider !== false && this.collider && this.collider.setAngle) {
     var diff = this.collider.angle - this.angle;
@@ -251,12 +244,6 @@ GameObject.prototype.appendChild = function(child) {
   return this;
 }
 
-GameObject.prototype.appendChildren = function(children) {
-  for(var i = 0; i < children.length; i++) {
-    this.appendChild(children[i]);
-  }
-}
-
 GameObject.prototype.prependChild = function(child) {
   if(!this.children){
     this.children = [];
@@ -270,19 +257,14 @@ GameObject.prototype.prependChild = function(child) {
   return this;
 }
 
-<<<<<<< HEAD
 GameObject.prototype.prependChildren = function(children) {
   for(var i = children.length; i >= 0 ; i--) {
     this.prependChild(children[i]);
   }
 }
 
-GameObject.prototype.insertChildBefore = function(child, reference) {
-  var index = this.getChildIndex(reference);
-=======
 GameObject.prototype.insertChildBefore = function(child, sibling) {
   var index = this.getChildIndex(sibling);
->>>>>>> 5cf05d002719ae6600cd3e32b577b73466c36b29
   
   if(index > -1) {
     this.insertChild(child, index);

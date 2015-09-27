@@ -10,7 +10,7 @@ var Terrain = function(matrix, patches, position, angle){
   this.position = position || new Vector();
   this.angle = angle || 0;
   this.blockSize = 36;
-  this.appendPatches(patches);
+  this.attachTerrainPatches(patches);
   this.convert();
   
   return this;
@@ -72,7 +72,7 @@ Terrain.prototype.replaceBlock = function(index, block){
   return this;
 }
 
-Terrain.prototype.init = function(){
+Terrain.prototype.start = function(){
   return this;
 }
 
@@ -88,33 +88,5 @@ Terrain.prototype.draw = function(camera){
   
   return this;
 }
-
-Terrain.prototype.appendPatch = Terrain.prototype.appendChild;
-
-Terrain.prototype.appendPatches = Terrain.prototype.appendChildren;
-
-Terrain.prototype.prependPatch = Terrain.prototype.prependChild;
-
-Terrain.prototype.insertPatch = Terrain.prototype.insertChild;
-
-Terrain.prototype.insertPatchAfter = Terrain.prototype.insertChildAfter;
-
-Terrain.prototype.insertPatchAt = Terrain.prototype.insertChildAt;
-
-Terrain.prototype.insertPatchBefore = Terrain.prototype.insertChildBefore;
-
-Terrain.prototype.removePatch = Terrain.prototype.removeChild;
-
-Terrain.prototype.removePatchAt = Terrain.prototype.removeChildAt;
-
-Terrain.prototype.replacePatch = Terrain.prototype.replaceChild;
-
-Terrain.prototype.getPatch = Terrain.prototype.getChild;
-
-Terrain.prototype.getPatchAt = Terrain.prototype.getChildAt;
-
-Terrain.prototype.getPatchIndex = Terrain.prototype.getChildIndex;
-
-Terrain.prototype.forEachPatch = Terrain.prototype.forEachChild;
 
 module.exports = Terrain;

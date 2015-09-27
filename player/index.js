@@ -6,7 +6,6 @@ var input = require("../input");
 var standards = require("../standards");
 var util = require("../util");
 
-VVV = new Vector(100,100);
 var Player = function(image, position, dimensions, angle){
   EventEmitter.call(this);
 
@@ -20,7 +19,7 @@ var Player = function(image, position, dimensions, angle){
 
 util.inherits(Player, GameObject);
 
-Player.prototype.init = function(){
+Player.prototype.start = function(){
 
 }
 
@@ -38,8 +37,7 @@ Player.prototype.update = function(){
   if(input.keyStatus("right")){
     this.move(new Vector(2 * standards.speed ,0));
   }
-  //console.log(this.position);
-  //this.moveToBy(VVV, standards.speed);
+  
   return this;
 }
 

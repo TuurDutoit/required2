@@ -6,7 +6,7 @@ var standards = {
 };
 
 events.on("loop:update:before", function(){
-  standards.speed = clock.deltaTime.update / 1000 * 60 || 0;
+  standards.speed = clock.deltaTime.update / 1000 * 60;
 });
 
 module.exports = standards;
