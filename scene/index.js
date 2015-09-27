@@ -1,117 +1,58 @@
 var events = require("../events");
+var GameObject = require("../game-object");
+var util = require("../util");
 
 
 var Scene = function() {
-  this.children = [];
+  GameObject.call(this);
   this.cameras = [];
   this.ids = {};
   this.classes = {};
   
-  return this;
-}
-
-Scene.prototype.insertChild = function(child, index) {
-  this.children.splice(index, 0, child);
+  this.init();
   
   return this;
 }
 
-Scene.prototype.appendChild = function(child) {
-  this.children.push(child);
+util.inherits(Scene, GameObject);
+
+
+Scene.prototype.addCamera = function(camera) {
+  this.cameras.push(camera);
+  this.emit("camera:insert", [camera]);
+  camera.emit("insert", [this]);
   
   return this;
 }
 
-Scene.prototype.prependChild = function(child) {
-  this.children.unshift(child);
+Scene.prototype.removeCameraAt = function(index) {
+  var camera = this.cameras[index];
+  this.cameras.splice(index, 1);
+  this.emit("camera:remove", [camera]);
+  camera.emit("remove", [this]);
   
   return this;
 }
 
-Scene.prototype.insertBefore = function(child, reference) {
-  var index = this.getChildIndex(reference);
-  
-  if(index > -1) {
-    this.children.insertChild(child, index);
-  }
-  
-  return this;
-}
-
-Scene.prototype.insertAfter = function(child, reference) {
-  var index = this.ghetChildIndex(reference);
-  
-  if(index > -1) {
-    this.children.insertChild(child, index+1);
-  }
-  
-  return this;
-}
-
-Scene.prototype.removeChild = function(child) {
-  var index = this.getChildIndex(child);
-  this.removeChildAt(index);
-  
-  return this;
-}
-
-Scene.prototype.removeChildAt = function(index) {
-  if(index > -1) {
-    this.children.splice(index, 1);
-  }
-  
-  return this;
-}
-
-Scene.prototype.replaceChild = function(child, old) {
-  var index = this.getChildIndex(old);
-  
-  if(index > -1) {
-    this.splice(index, 1, child);
-  }
-  
-  return this;
-}
-
-Scene.prototype.getChildIndex = function(child) {
-  return this.children.indexOf(child);
-}
-
-Scene.prototype.forEachChild = function(cb) {
-  for(var i = 0; i < this.children.length; i++) {
-    cb(this.children[i], i, this.children);
-  }
-  
-  return this;
-}
 
 Scene.prototype.forEachCamera = function(cb) {
-  for(var i = 0; i < this.cameras.length; i++) {
+  for(var i = 0, len = this.cameras.length; i < len; i++) {
     cb(this.cameras[i], i, this.cameras);
   }
   
   return this;
 }
 
-Scene.prototype.addCamera = function(camera){
-  this.cameras.push(camera);
-}
 
-
-Scene.prototype.init = function() {
+Scene.prototype._update = function() {
+  this.emit("update");
+  
   this.forEachChild(function(child) {
-    child.init();
+    child._update();
   });
   
-  return this;
-}
-
-Scene.prototype.update = function() {
-  this.forEachChild(function(child) {
-    child.update();
-  });
   this.forEachCamera(function(camera){
-    camera.update();
+    camera._update();
   });
   
   return this;
