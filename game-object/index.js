@@ -48,6 +48,19 @@ util.inherits(GameObject, EventEmitter);
 
 
 
+GameObject.prototype.destroy = function(children) {
+  if(children === false) {
+    this.emit("destroy");
+  }
+  else {
+    this._destroy();
+  }
+  
+  return this;
+}
+
+
+
 
 GameObject.prototype.moveBy = GameObject.prototype.move = function(v, moveCollider){
   /**if(moveCollider !== false && this.collider) {
@@ -362,9 +375,6 @@ GameObject.prototype.forEachChild = function(cb) {
   return this;
 }
 
-
-
-
 GameObject.prototype._appear = function() {
   this.emit("appear");
   
@@ -385,22 +395,12 @@ GameObject.prototype._disappear = function() {
   return this;
 }
 
-GameObject.prototype._init = function() {
-  this.emit("init");
-  
-  this.forEachChild(function(child) {
-    child._init();
-  });
-}
-
-GameObject.prototype._destroy = function(children) {
+GameObject.prototype._destroy = function() {
   this.emit("destroy");
   
-  if(children !== false) {
-    this.forEachChild(function(child) {
-      child._destroy();
-    });
-  }
+  this.forEachChild(function(child) {
+    child._destroy();
+  });
   
   return this;
 }
