@@ -205,9 +205,9 @@ GameObject.prototype.prependChild = function(child) {
   return this;
 }
 
-
-GameObject.prototype.insertChildBefore = function(child, sibling) {
-  var index = this.getChildIndex(sibling);
+GameObject.prototype.insertChildBefore = function(child, reference) {
+  var index = this.getChildIndex(reference);
+  
   if(index > -1) {
     this.insertChild(child, index);
     this.emit("child:insert:before", [child, reference, index]);
