@@ -1,27 +1,31 @@
 var renderer = require("../renderer");
 
-
-var Sprite = function(name, sheetPosition, sheetDimensions, collider) {
-  this.type = "sprite";
-  this.name = name;
+var Sprite = function(location, sheetPosition, sheetDimensions) {
+  
+  this.location = location;
   this.loadedSheet = null;
   this.sheetPosition = sheetPosition;
   this.sheetDimensions = sheetDimensions;
-  this.collider = collider;
 
+  this.load();
+  
   return this;
 }
 
-Sprite.prototype.update = function() {
-  
-}
+Sprite.prototype.type = "sprite";
 
-Sprite.prototype.draw = function(position, dimensions, rotation) {
-  renderer.drawImage(this.loadedSheet, this.sheetPosition, this.sheetDimensions, position, dimensions, rotation);
+Sprite.prototype.draw = function(position, dimensions, angle) {
+  if(this.loadedSheet) {
+    renderer.drawSprite(this.loadedSheet, this.sheetPosition, this.sheetDimensions, position, dimensions, angle);
+  }
+  
+  return this;
 }
 
 Sprite.prototype.load = function() {
+  this.loadedSheet = document.getElementById(this.location);
   
+  return this;
 }
 
 

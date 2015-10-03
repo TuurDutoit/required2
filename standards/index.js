@@ -1,8 +1,10 @@
 var events = require("../events");
 var clock = require("../clock");
+var Vector = require("../vector");
 
 var standards = {
-  speed: 0
+  speed: 0,
+  g: new Vector(0, 10)
 };
 
 events.on("loop:update:before", function(){

@@ -34,7 +34,7 @@ var drawCanvas = {
       context.drawImage(image, position.x, position.y, dimensions.x, dimensions.y);
     }
   },
-  drawSprite: function(image, position, dimensions, angle, sheetPosition, sheetDimensions){
+  drawSprite: function(image, sheetPosition, sheetDimensions, position, dimensions, angle){
     if(angle){
       drawCanvas.drawOnRotatedCanvas(position, angle, function(){ 
         context.drawImage(image, sheetPosition.x, sheetPosition.y, sheetDimensions.x, sheetDimensions.y, 0, 0, dimensions.x, dimensions.y);

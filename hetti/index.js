@@ -5,9 +5,14 @@ var util = require("../util");
 var blocks =  require("../blocks");
 
 var Hetti = function(physics){
-  EventEmitter.call(this);
+  GameObject.call(this);
   
-  this.appendPhysics(physics);
+  this.velocity = new Vector();
+  this.acceleration = new Vector();
+  this.maxVelocity  = new Vector(50, 50);
+  this.maxAcceleration = new Vector(50, 50);
+  
+  this.appendMultiplePhysicsPatch(physics);
   
   return this;
 }
@@ -19,6 +24,9 @@ Hetti.prototype.init = function(){
 }
 
 Hetti.prototype.update = function(){
+  this.increaseVelocity(this.acceleration);
+  this.parent.moveBy(this.velocity.multiply(standards.speed));
+  
   return this;
 }
 
@@ -26,32 +34,60 @@ Hetti.prototype.draw = function(camera){
   return this;
 }
 
-Hetti.prototype.appendPhysics = Hetti.prototype.appendChild;
+Hetti.prototype.accelerate = function(v) {  
+  this.acceleration.add(v);
+  
+  if(this.acceleration.x > this.maxAcceleration.x) {
+    this.acceleration.x = this.maxAcceleration.x;
+  }
+  if(this.acceleration.y > this.maxAcceleration.y) {
+    this.acceleration.y = this.maxAcceleration.y;
+  }
+  
+  return this;
+}
 
-Hetti.prototype.appendPhysicses = Hetti.prototype.appendChildren;
+Hetti.prototype.increaseVelocity = function(v){
+  
+  this.velocity.add(v);
+  
+  if(this.velocity.x > this.maxVelocity.x) {
+    this.velocity.x = this.maxVelocity.x;
+  }
+  if(this.velocity.y > this.maxVelocity.y) {
+    this.velocity.y = this.maxVelocity.y;
+  }
 
-Hetti.prototype.prependPhysics = Hetti.prototype.prependChild;
+  
+  return this;
+}
 
-Hetti.prototype.insertPhysics = Hetti.prototype.insertChild;
+Hetti.prototype.appendPhysicsPatch = Hetti.prototype.appendChild;
 
-Hetti.prototype.insertPhysicsAfter = Hetti.prototype.insertChildAfter;
+Hetti.prototype.appendPhysicsPatches = Hetti.prototype.appendChildren;
 
-Hetti.prototype.insertPhysicsAt = Hetti.prototype.insertChildAt;
+Hetti.prototype.prependPhysicsPatch = Hetti.prototype.prependChild;
 
-Hetti.prototype.insertPhysicsBefore = Hetti.prototype.insertChildBefore;
+Hetti.prototype.insertPhysicsPatch = Hetti.prototype.insertChild;
 
-Hetti.prototype.removePhysics = Hetti.prototype.removeChild;
+Hetti.prototype.insertPhysicsPatchAfter = Hetti.prototype.insertChildAfter;
 
-Hetti.prototype.removePhysicsAt = Hetti.prototype.removeChildAt;
+Hetti.prototype.insertPhysicsPatchAt = Hetti.prototype.insertChildAt;
 
-Hetti.prototype.replacePhysics = Hetti.prototype.replaceChild;
+Hetti.prototype.insertPhysicsPatchBefore = Hetti.prototype.insertChildBefore;
 
-Hetti.prototype.getPhysics = Hetti.prototype.getChild;
+Hetti.prototype.removePhysicsPatch = Hetti.prototype.removeChild;
 
-Hetti.prototype.getPhysicsAt = Hetti.prototype.getChildAt;
+Hetti.prototype.removePhysicsPatchAt = Hetti.prototype.removeChildAt;
 
-Hetti.prototype.getPhysicsIndex = Hetti.prototype.getChildIndex;
+Hetti.prototype.replacePhysicsPatch = Hetti.prototype.replaceChild;
 
-Hetti.prototype.forEachPhysics = Hetti.prototype.forEachChild;
+Hetti.prototype.getPhysicsPatch = Hetti.prototype.getChild;
+
+Hetti.prototype.getPhysicsPatchAt = Hetti.prototype.getChildAt;
+
+Hetti.prototype.getPhysicsPatchIndex = Hetti.prototype.getChildIndex;
+
+Hetti.prototype.forEachPhysicsPatch = Hetti.prototype.forEachChild;
 
 module.exports = Hetti;

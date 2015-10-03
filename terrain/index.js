@@ -5,7 +5,7 @@ var util = require("../util");
 var blocks =  require("../blocks");
 
 var Terrain = function(matrix, patches, position, angle){
-  EventEmitter.call(this);
+  GameObject.call(this);
   this.matrix = matrix;
   this.position = position || new Vector();
   this.angle = angle || 0;

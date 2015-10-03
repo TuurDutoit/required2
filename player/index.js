@@ -1,5 +1,6 @@
 var Vector = require("../vector");
 var GameObject = require("../game-object");
+var DrawableGameObject = require("../drawable-game-object");
 var EventEmitter = require("../event-emitter");
 var renderer = require("../renderer");
 var input = require("../input");
@@ -8,7 +9,7 @@ var util = require("../util");
 
 VVV = new Vector(100,100);
 var Player = function(image, position, dimensions, angle){
-  EventEmitter.call(this);
+  DrawableGameObject.call(this);
 
   this.image = image;
   this.position = position || new Vector();
@@ -18,7 +19,7 @@ var Player = function(image, position, dimensions, angle){
   return this;
 }
 
-util.inherits(Player, GameObject);
+util.inherits(Player, DrawableGameObject);
 
 Player.prototype.init = function(){
 
@@ -27,16 +28,22 @@ Player.prototype.init = function(){
 Player.prototype.update = function(){
   //this.rotateAround(new Vector(150, 150), 0.05);
   if(input.keyStatus("up")){
-    this.move(new Vector(0,-2 * standards.speed));
+    this.moveAlongAngle(new Vector(0,-2 * standards.speed));
   }
   if(input.keyStatus("down")){
-    this.move(new Vector(0,2 * standards.speed));
+    this.moveAlongAngle(new Vector(0,2 * standards.speed));
   }
   if(input.keyStatus("left")){
-    this.move(new Vector(-2 * standards.speed ,0));
+    this.moveAlongAngle(new Vector(-2 * standards.speed ,0));
   }
   if(input.keyStatus("right")){
-    this.move(new Vector(2 * standards.speed ,0));
+    this.moveAlongAngle(new Vector(2 * standards.speed ,0));
+  }
+  if(input.keyStatus("B")){
+    this.rotateAroundMiddle(0.05);
+  }
+  if(input.keyStatus("N")){
+    this.rotateAroundMiddle(-0.05);
   }
   //console.log(this.position);
   //this.moveToBy(VVV, standards.speed);

@@ -5,18 +5,19 @@ var renderer= require("../renderer");
 var input = require("../input");
 var util = require("../util");
 
-var Camera = function(obj, dimensions, angle, displayPosition, displayDimensions, displayAngle){
+var Camera = function(obj, offset, dimensions, angle, displayPosition, displayDimensions, displayAngle){
   EventEmitter.call(this);
   this.active = true;
   this.displaying = false;
   this.position = obj.position || new Vector();
+  this.offset = offset || new Vector();
   this.dimensions = dimensions || new Vector();
   this.angle = angle || 0;
   this.displayPosition = displayPosition || new Vector();
   this.displayDimensions = displayDimensions || this.dimensions;
   this.displayAngle = displayAngle || this.angle;
   this.calculateZoomDimensions();
-  this.offset = new Vector(0,0);
+
   return this;
 }
 
@@ -156,7 +157,6 @@ Camera.prototype.absolutePosition = function() {
 
 Camera.prototype.calculateZoomDimensions = function() {
   this.zoomDimensions = this.displayDimensions.clone().divide(this.dimensions);
-  console.log(this.zoomDimensions);
   return this;
 }
 
@@ -208,6 +208,34 @@ Camera.prototype.drawScene = function(scene) {
   return this;
 }
 
+Camera.prototype.positionOnScreen = function(position) {
+  return position.clone().rotateAround(this.absolutePosition(), -this.angle ).sub(this.absolutePosition()).multiply(this.zoomDimensions).add(this.displayPosition).rotateAround(this.displayPosition, -this.displayAngle);
+}
+
+Camera.prototype.dimensionsOnScreen = function(dimensions) {
+  return dimensions.clone().multiply(this.zoomDimensions);
+}
+
+Camera.prototype.angleOnScreen = function(angle) {
+  return angle - this.angle - this.displayAngle;
+}
+
+Camera.prototype.sizeOnScreen = function(size) {
+  return size * this.zoomDimensions.y;
+}
+  
+Camera.prototype.setDisplayDimensions = function(v) {
+  this.displayDimensions = v;
+  
+  return this;
+}
+
+Camera.prototype.setDisplayPosition = function(v) {
+  this.displayPosition = v;
+  
+  return this;
+}
+
 Camera.prototype.appendUi = Camera.prototype.appendChild;
 
 Camera.prototype.prependUi = Camera.prototype.prependChild;
@@ -234,26 +262,34 @@ Camera.prototype.getUiIndex = Camera.prototype.getChildIndex;
 
 Camera.prototype.forEachUi = Camera.prototype.forEachChild;
 
-Camera.prototype.drawOnScreen = function(image, position, dimensions, angle, unaffectedByZoom) {
-   var absolutePosition = this.absolutePosition(); 
-  if(unaffectedByZoom){
-    image.draw(position.clone().rotateAround(this.absolutePosition(), -this.angle).sub(this.absolutePosition()).add(this.displayPosition), dimensions.clone(), angle - this.angle);
-  }
-  else{
-    image.draw(position.clone().rotateAround(this.absolutePosition(), -this.angle).sub(this.absolutePosition()).multiply(this.zoomDimensions).add(this.displayPosition), dimensions.clone().multiply(this.zoomDimensions), angle - this.angle);  
-  }
+Camera.prototype.drawOnCanvas = function(image, position, dimensions, angle) { 
+  image.draw(position, dimensions, angle);  
 
   return this;
 }
 
-Camera.prototype.drawTextOnScreen = function(text, position, size, angle, font, color, unaffectedByZoom) {
-  var absolutePosition = this.absolutePosition(); 
-  if(unaffectedByZoom){
-    renderer.drawText(text, position.clone().rotateAround(this.absolutePosition(), -this.angle).sub(this.absolutePosition()).add(this.displayPosition), size, angle - this.angle, font, color);
-  }
-  else{
-     renderer.drawText(text, position.clone().rotateAround(this.absolutePosition(), -this.angle).sub(this.absolutePosition()).multiply(this.zoomDimensions).add(this.displayPosition), size * this.zoomDimensions.x, angle - this.angle, font, color);
-  }
+Camera.prototype.drawTextOnCanvas = function(text, position, size, angle, font, color) { 
+  renderer.drawText(text, position, size, angle, font, color);
+
+  return this;
+}
+
+Camera.prototype.drawOnScreen = function(image, position, dimensions, angle) { 
+  image.draw(this.positionOnScreen(position),this.dimensionsOnScreen(dimensions), this.angleOnScreen(angle));  
+
+  return this;
+}
+
+Camera.prototype.drawOnScreen = function(image, position, dimensions, angle) { 
+  image.draw(this.positionOnScreen(position),this.dimensionsOnScreen(dimensions), this.angleOnScreen(angle));  
+
+  return this;
+}
+
+Camera.prototype.drawTextOnScreen = function(text, position, size, angle, font, color) {
+  renderer.drawText(text, this.positionOnScreen(position),this.sizeOnScreen(size), this.angleOnScreen(angle), font, color);
+  
+  return this;
 }
 
 

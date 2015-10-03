@@ -4,9 +4,10 @@ var EventEmitter = require("../event-emitter");
 var util = require("../util");
 var renderer = require("../renderer");
 
-var Background = function(animation, position, dimensions, angle) {
+var Background = function(animation, position, dimensions, angle, parralaxSpeed) {
   EventEmitter.call(this);
   this.animation = animation;
+  this.parralaxSpeed = parralaxSpeed || new Vector(1,1);
   this.position = position || new Vector();
   this.dimensions = dimensions || new Vector();
   this.angle = angle || 0;
@@ -21,8 +22,9 @@ Background.prototype.update = function() {
 }
 
 Background.prototype.draw = function(camera) { 
-  camera.drawOnScreen(this.animation, this.position, this.dimensions, this.angle)
-    //renderer.drawImage(this.animation, this.position, this.dimensions, 0);
+  //camera.drawOnScreenWithParralax(this.animation, this.position.clone(), this.dimensions, this.angle, this.parralaxSpeed)
+  camera.drawOnScreen(this.animation, this.position.clone(), this.dimensions, this.angle);
+  //renderer.drawImage(this.animation, this.position, this.dimensions, 0);
   
   return this;
 }

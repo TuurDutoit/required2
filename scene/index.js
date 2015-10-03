@@ -120,11 +120,17 @@ Scene.prototype.update = function() {
 Scene.prototype.draw = function() {
   var self = this;
   self.forEachCamera(function(camera){
-    self.forEachChild(function(child) {
-      child.draw(camera);
-    });
-    camera.draw();
+    self.drawWithCamera(camera);
   });
+  
+  return this;
+}
+
+Scene.prototype.drawWithCamera = function(camera) {
+  this.forEachChild(function(child) {
+      child.draw(camera);
+  });
+  camera.draw();
   
   return this;
 }
