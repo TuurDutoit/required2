@@ -173,7 +173,7 @@ GameObject.prototype.absoluteToRelativeAngle = function(angle) {
 
 
 
-GameObject.prototype.addParent = function(parent){ 
+GameObject.prototype.setParent = function(parent){ 
   this.parent = parent;
   
   return this;
@@ -183,7 +183,8 @@ GameObject.prototype.insertChild = GameObject.prototype.insertChildAt = function
   if(!this.children){
     this.children = [];
   }
-  child.addParent(this);
+  
+  child.setParent(this);
   this.children.splice(index, 0, child);
   this.emit("child:insert", [child, index]);
   
@@ -194,7 +195,8 @@ GameObject.prototype.appendChild = function(child) {
   if(!this.children){
     this.children = [];
   }
-  child.addParent(this);
+  
+  child.setParent(this);
   this.children.push(child);
   this.emit("child:insert:append", [child]);
   this.emit("child:insert", [child, this.children.length - 1]);

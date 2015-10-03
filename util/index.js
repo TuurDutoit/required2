@@ -22,6 +22,9 @@ var util = {
     }
     
     return obj1;
+  },
+  clone: function(obj) {
+    return this.merge({}, obj);
   }
 }
 

@@ -1,33 +1,16 @@
-module.exports = require("./crash");
+var Crash = require("./crash");
+var events = require("../events");
 
-/**
-var Collider = function(name, collider) {
-    this.type = "image";
-    this.name = name;
-    this.loadedCollider = null;
-    
-    this.loadedCollider = this.name;
-  
-    this.collider = collider;
-    
-    return this;
-}
+Crash.onCollision(function(a, b, res, cancel) {
+  events.emit("collision", [a, b, res, cancel]);
+});
 
-Collider.prototype.update = function() {
-  return this;
-}
+events.on("loop:update", function() {
+  Crash.check();
+});
 
-Collider.prototype.draw = function() {
-  return this;
-}
+events.on("loop:update:start", function() {
+  Crash.checkAll();
+});
 
-Collider.prototype.load = function() {
-  
-}
-
-Collider.prototype.getCollider = function() {
-  return this.collider;
-}
-
-
-module.exports = Collider;**/
+module.exports = Crash;

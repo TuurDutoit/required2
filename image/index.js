@@ -23,7 +23,7 @@ Image.prototype.draw = function(position, dimensions, angle) {
 }
 
 Image.prototype.load = function() {
-  this.loadedImage = document.getElementById(this.location)
+  this.loadedImage = document.getElementById(this.location);
 }
 
 module.exports = Image;

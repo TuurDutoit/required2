@@ -6,7 +6,7 @@ var input = require("../input");
 var util = require("../util");
 
 var Camera = function(obj, offset, dimensions, angle, displayPosition, displayDimensions, displayAngle){
-  EventEmitter.call(this);
+  GameObject.call(this);
   this.active = true;
   this.displaying = false;
   this.position = obj.position || new Vector();

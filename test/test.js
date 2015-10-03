@@ -23,6 +23,7 @@ var Text = require("../text");
 var Ui = require("../ui");
 var Sprite = require("../sprite");
 var SpriteAnimation = require("../sprite-animation");
+var Crash = require("../colliders");
 
 loop.updateFps(60);
 Game = {
@@ -65,6 +66,26 @@ leTestScene.appendChild(new CameraDisplayObject(CAMERAQ, new Image("icon"), new 
 leTestScene.appendChild(new DrawableGameObject(new Sprite("Icon", new Vector(0,0), new Vector(16, 16)), new  Vector(0, 0), new Vector(100, 100), 0));
 
 leTestScene.appendChild(Play);
+
+
+
+var leGameObject = new GameObject();
+leGameObject.collider = new Crash.Box(new Vector(), 100, 100, true, leGameObject);
+
+var go = new GameObject();
+go.collider = new Crash.Box(new Vector(), 100, 100, true, leGameObject);
+
+events.on("collision", function(a, b, res, cancel) {
+  console.log("collision:", a, b, res);
+  a.moveBy(res.overlapV.clone().reverse());
+});
+
+events.on("loop:update", function() {
+  
+});
+
+
+
 
 input.mapKey(38, "up").mapKey(40, "down").mapKey(37, "left").mapKey(39, "right").mapKey(107, "+").mapKey(109, "-").mapKey(81, "Q").mapKey(83, "S").mapKey(68, "D").mapKey(90, "Z").mapKey(88, "X").mapKey(87, "W").mapKey(66, "B").mapKey(78, "N");
 A = new Text(standards);

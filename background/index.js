@@ -4,10 +4,10 @@ var EventEmitter = require("../event-emitter");
 var util = require("../util");
 var renderer = require("../renderer");
 
-var Background = function(animation, position, dimensions, angle, parralaxSpeed) {
+var Background = function(animation, position, dimensions, angle, parallaxSpeed) {
   EventEmitter.call(this);
   this.animation = animation;
-  this.parralaxSpeed = parralaxSpeed || new Vector(1,1);
+  this.parallaxSpeed = parallaxSpeed || new Vector(1,1);
   this.position = position || new Vector();
   this.dimensions = dimensions || new Vector();
   this.angle = angle || 0;
