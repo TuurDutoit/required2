@@ -12,18 +12,21 @@ var Scene = function() {
 
 Scene.prototype.insertChild = function(child, index) {
   this.children.splice(index, 0, child);
+  child._init();
   
   return this;
 }
 
 Scene.prototype.appendChild = function(child) {
   this.children.push(child);
+  child._init();
   
   return this;
 }
 
 Scene.prototype.prependChild = function(child) {
   this.children.unshift(child);
+  child._init();
   
   return this;
 }
@@ -33,16 +36,18 @@ Scene.prototype.insertBefore = function(child, reference) {
   
   if(index > -1) {
     this.children.insertChild(child, index);
+    child._init();
   }
   
   return this;
 }
 
 Scene.prototype.insertAfter = function(child, reference) {
-  var index = this.ghetChildIndex(reference);
+  var index = this.getChildIndex(reference);
   
   if(index > -1) {
     this.children.insertChild(child, index+1);
+    child._init();
   }
   
   return this;
@@ -51,6 +56,7 @@ Scene.prototype.insertAfter = function(child, reference) {
 Scene.prototype.removeChild = function(child) {
   var index = this.getChildIndex(child);
   this.removeChildAt(index);
+  child._destroy();
   
   return this;
 }
@@ -58,6 +64,7 @@ Scene.prototype.removeChild = function(child) {
 Scene.prototype.removeChildAt = function(index) {
   if(index > -1) {
     this.children.splice(index, 1);
+    child._destroy();
   }
   
   return this;
@@ -68,6 +75,7 @@ Scene.prototype.replaceChild = function(child, old) {
   
   if(index > -1) {
     this.splice(index, 1, child);
+    child._destroy();
   }
   
   return this;
@@ -100,7 +108,7 @@ Scene.prototype.addCamera = function(camera){
 
 Scene.prototype.init = function() {
   this.forEachChild(function(child) {
-    child.init();
+    child._init();
   });
   
   return this;
@@ -108,7 +116,7 @@ Scene.prototype.init = function() {
 
 Scene.prototype.update = function() {
   this.forEachChild(function(child) {
-    child.update();
+    child._update();
   });
   this.forEachCamera(function(camera){
     camera.update();

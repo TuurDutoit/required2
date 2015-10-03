@@ -1,6 +1,8 @@
 var Crash = require("./crash");
 var events = require("../events");
 
+Crash.init();
+
 Crash.onCollision(function(a, b, res, cancel) {
   events.emit("collision", [a, b, res, cancel]);
 });

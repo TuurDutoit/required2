@@ -6,7 +6,10 @@ var lastDrawTime;
 
 var Clock = {
   timeout: function(cb, time) {
-    setTimeout(cb, time);
+    return setTimeout(cb, time);
+  },
+  clearTimeout: function(id) {
+    clearTimeout(id);
   },
   now: (function() {
     if("performance" in window) {

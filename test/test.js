@@ -29,6 +29,9 @@ loop.updateFps(60);
 Game = {
     start: function(){
         loop.start()
+    },
+    stop: function() {
+      loop.stop();
     }
 }
 Play = new Player(new SpriteAnimation("Mario", [[new Vector(6 * 16, 0), new Vector(16, 32), 200], [new Vector(7 * 16, 0), new Vector(16, 32), 200] , [new Vector(8 * 16, 0), new Vector(16, 32), 200] , [new Vector(7 * 16, 0), new Vector(16, 32), 200]], true), new Vector(36,324 - 1.5 * 72), new Vector(36,72), 0);
@@ -68,20 +71,23 @@ leTestScene.appendChild(new DrawableGameObject(new Sprite("Icon", new Vector(0,0
 leTestScene.appendChild(Play);
 
 
+var sat = require("sat");
 
 var leGameObject = new GameObject();
-leGameObject.collider = new Crash.Box(new Vector(), 100, 100, true, leGameObject);
+leGameObject.setCollider(new Crash.Box(new sat.Vector(), 100, 100, true));
+leTestScene.appendChild(leGameObject);
 
 var go = new GameObject();
-go.collider = new Crash.Box(new Vector(), 100, 100, true, leGameObject);
+go.setCollider(new Crash.Box(new sat.Vector(50, 50), 100, 100));
+leTestScene.appendChild(go);
+
+console.log(go);
 
 events.on("collision", function(a, b, res, cancel) {
-  console.log("collision:", a, b, res);
-  a.moveBy(res.overlapV.clone().reverse());
-});
-
-events.on("loop:update", function() {
-  
+  var move = res.overlapV.clone().reverse();
+  a.moveBy(move.x, move.y);
+  cancel();
+  console.log("collision:", res.overlap);
 });
 
 

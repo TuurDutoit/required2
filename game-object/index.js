@@ -18,6 +18,7 @@ var GameObject = function(position, dimensions, angle) {
   this.children = [];
   this.parent = null;
   this.collider = null;
+  this._live = false;
   
   /**
   this.pipe(events, function(self, other, event, args) {
@@ -187,6 +188,7 @@ GameObject.prototype.insertChild = GameObject.prototype.insertChildAt = function
   child.setParent(this);
   this.children.splice(index, 0, child);
   this.emit("child:insert", [child, index]);
+  child._init();
   
   return this;
 }
@@ -200,6 +202,7 @@ GameObject.prototype.appendChild = function(child) {
   this.children.push(child);
   this.emit("child:insert:append", [child]);
   this.emit("child:insert", [child, this.children.length - 1]);
+  child._init();
   
   return this;
 }
@@ -218,6 +221,7 @@ GameObject.prototype.prependChild = function(child) {
   this.children.unshift(child);
   this.emit("child:insert:prepend", [child]);
   this.emit("child:insert", [child, 0]);
+  child._init();
   
   return this;
 }
@@ -229,6 +233,7 @@ GameObject.prototype.insertChildBefore = function(child, reference) {
     this.insertChild(child, index);
     this.emit("child:insert:before", [child, reference, index]);
     this.emit("child:insert", [child, index]);
+    child._init();
   }
   
   return this;
@@ -241,6 +246,7 @@ GameObject.prototype.insertChildAfter = function(child, reference) {
     this.insertChild(child, index+1);
     this.emit("child:insert:after", [child, reference, index]);
     this.emit("child:insert", [child, index]);
+    child._init();
   }
   
   return this;
@@ -249,6 +255,7 @@ GameObject.prototype.insertChildAfter = function(child, reference) {
 GameObject.prototype.removeChild = function(child) {
   var index = this.getChildIndex(child);
   this.removeChildAt(index);
+  child._destroy();
   
   return this;
 }
@@ -258,6 +265,7 @@ GameObject.prototype.removeChildAt = function(index) {
     var child = this.children[index];
     this.children.splice(index, 1);
     this.emit("child:remove", [child, index]);
+    child._destroy();
   }
   
   return this;
@@ -271,6 +279,8 @@ GameObject.prototype.replaceChild = function(child, old) {
     this.emit("child:replace", [child, old, index]);
     this.emit("child:remove", [old, index]);
     this.emit("child:insert", [child, index]);
+    child._init();
+    old._destroy();
   }
   
   return this;
@@ -294,13 +304,91 @@ GameObject.prototype.forEachChild = function(cb) {
   return this;
 }
 
+
+
+
+
+
+GameObject.prototype.setCollider = function(collider) {
+  if(this._live) {
+    if(this.collider) {
+      this.collider.remove();
+      this.collider.setData(null);
+    }
+
+    collider.insert();
+    collider.setData(this);
+  }
+  
+  this.collider = collider;
+  
+  
+  return this;
+}
+
+
+
+
+
+
+
 GameObject.prototype.init = function() {
   return this; 
 }
 
-GameObject.prototype.update = function() {
-  //this.rotateAroundMiddle(Math.PI/1000);
+GameObject.prototype._init = function() {
+  this._live = true;
   
+  if(this.init) {
+    this.init();
+  }
+  
+  if(this.collider) {
+    this.collider.insert();
+  }
+  
+  this.forEachChild(function(child) {
+    child._init();
+  });
+  
+  return this;
+}
+
+GameObject.prototype._update = function() {
+  if(this.update) {
+    this.update();
+  }
+  
+  this.forEachChild(function(child) {
+    child._update();
+  });
+  
+  return this;
+}
+
+GameObject.prototype.update = function() {
+  return this;
+}
+
+GameObject.prototype._destroy = function() {
+  this._live = false;
+  
+  if(this.destroy) {
+    this.destroy();
+  }
+  
+  if(this.collider) {
+    this.collider.remove();
+  }
+  
+  this.forEachChild(function(child) {
+    child._destroy();
+  });
+  
+  return this;
+}
+
+GameObject.prototype.destroy = function() {
   return this;
 }
 
@@ -310,5 +398,8 @@ GameObject.prototype.draw = function(camera) {
   }
   return this;
 }
+
+
+
 
 module.exports = GameObject;
