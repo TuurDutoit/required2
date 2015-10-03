@@ -60,10 +60,10 @@ Terrain.prototype.getBlock = function(index){
 
 Terrain.prototype.replaceBlock = function(index, block){
   if(typeof block === "number") {
-    this.matrix[index.y][index.x] = blocks.getElementById(block);
+    this.matrix[index.y][index.x] = new blocks.geBlockById(block)();
   }
   else if(typeof block === "string") {
-    this.matrix[index.y][index.x] = blocks[block];
+    this.matrix[index.y][index.x] = new blocks[block]();
   }
   else{
     this.matrix[index.y][index.x] = block;
