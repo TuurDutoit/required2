@@ -134,6 +134,7 @@ GameObject.prototype.rotateAroundOrigin = function(angle) {
 }
 
 GameObject.prototype.getMiddle = function(){
+  //console.log(this.dimensions.clone().divide(2).add(this.absolutePosition()).rotateAround(this.absolutePosition(), this.angle));
   return this.dimensions.clone().divide(2).add(this.absolutePosition()).rotateAround(this.absolutePosition(), this.angle);
 }
 

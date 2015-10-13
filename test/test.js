@@ -34,17 +34,18 @@ Game = {
       loop.stop();
     }
 }
-Play = new Player(new SpriteAnimation("Mario", [[new Vector(6 * 16, 0), new Vector(16, 32), 200], [new Vector(7 * 16, 0), new Vector(16, 32), 200] , [new Vector(8 * 16, 0), new Vector(16, 32), 200] , [new Vector(7 * 16, 0), new Vector(16, 32), 200]], true), new Vector(36,324 - 1.5 * 72), new Vector(36,72), 0);
+Play = new Player(new SpriteAnimation("Mario", [[new Vector(6 * 16, 0), new Vector(16, 32), 200], [new Vector(7 * 16, 0), new Vector(16, 32), 200] , [new Vector(8 * 16, 0), new Vector(16, 32), 200] , [new Vector(7 * 16, 0), new Vector(16, 32), 200]], true), new Vector(0,0), new Vector(36,72), 0);
 leTestScene = new Scene();
-CAMOBJ = new GameObject(new Vector(), new Vector(), 0);
-CAMERA = new Camera(Play, new Vector(-Play.position.x,-Play.position.y), new Vector(324, 324/2), 0, new Vector(), new Vector(324, 324/2), 0, 1);
+CAMOBJ = new GameObject(new Vector(0, 0), new Vector(), 0);
+//CAMERA = new Camera(new GameObject(), new Vector(), new Vector(324, 324), 0, new Vector(), new Vector(324, 324), 0, 1);
+CAMERA = new Camera(Play, new Vector(0,0), new Vector(324, 324), 0, new Vector(), new Vector(324, 324), 0, 1);
 CAMERAQ = new Camera(new GameObject(), new Vector(), new Vector(324, 324), 0, new Vector(0,0), new Vector(324, 324), 0, 1);
 CAMERA.appendChild(new Ui("BATMAN", new Vector(0, 0), 0));
 CAMERAB = new Camera(new GameObject(), new Vector(), new Vector(324, 324/2), 0, new Vector(0,324/2), new Vector(324, 324/2), 0, 1);
 CAMERAC = new Camera(Play, new Vector(), new Vector(324, 324), 0, new Vector(324/2,324/2), new Vector(324/2, 324/2), 0, 1);
 CAMERAD = new Camera(CAMOBJ, new Vector(), new Vector(324, 324), 0, new Vector(324/2,0), new Vector(324/2, 324/2), 0, 1);
 leTestScene.addCamera(CAMERA);
-leTestScene.addCamera(CAMERAB);
+//leTestScene.addCamera(CAMERAB);
 //leTestScene.addCamera(CAMERAC);
 //leTestScene.addCamera(CAMERAD);
 leTestScene.appendChild(new Background(new Image("background-scene1"), new Vector(), new Vector(324,324), 0, new Vector(0.1, 1)));
@@ -63,7 +64,7 @@ TERRAIN = new Terrain([[ , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
               [1,1]])], new Vector());
 leTestScene.appendChild(TERRAIN);
 //camera, surroundingImage, position, dimensions, angle
-leTestScene.appendChild(new CameraDisplayObject(CAMERAQ, new Image("icon"), new  Vector(150, 250), new Vector(100, 100), 0));
+//leTestScene.appendChild(new CameraDisplayObject(CAMERAQ, new Image("icon"), new  Vector(0, 0), new Vector(100, 100), 0));
 //leTestScene.appendChild(new DrawableGameObject(new Image("Icon"), new  Vector(0, 0), new Vector(100, 100), 0));
 
 leTestScene.appendChild(new DrawableGameObject(new Sprite("Icon", new Vector(0,0), new Vector(16, 16)), new  Vector(0, 0), new Vector(100, 100), 0));
@@ -80,13 +81,13 @@ var go = new GameObject();
 go.setCollider(new Crash.Box(new Vector(50, 50), 100, 100));
 leTestScene.appendChild(go);
 
-console.log(go);
+//console.log(go);
 
 events.on("collision", function(a, b, res, cancel) {
   var move = res.overlapV.clone().reverse();
   a.moveBy(move.x, move.y);
   cancel();
-  console.log("collision:", res.overlap);
+  //console.log("collision:", res.overlap);
 });
 
 

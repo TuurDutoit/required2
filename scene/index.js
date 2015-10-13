@@ -135,11 +135,12 @@ Scene.prototype.draw = function() {
 }
 
 Scene.prototype.drawWithCamera = function(camera) {
+  camera.startCamera();
   this.forEachChild(function(child) {
       child.draw(camera);
   });
   camera.draw();
-  
+  camera.finishCamera();
   return this;
 }
 

@@ -26,16 +26,18 @@ CameraDisplay.prototype.init = function(){
 }
 
 CameraDisplay.prototype.update = function(){
-  this.rotateAroundMiddle(Math.PI/100 * standards.speed);
+  this.rotate(Math.PI/100 * standards.speed);
   return this;
 }
 
 CameraDisplay.prototype.draw = function(camera) {
   if(this.camera !== camera){
-    this.camera.displayAngle = -camera.angleOnScreen(this.angle);
-    this.camera.displayPosition = camera.positionOnScreen(this.position);
-    this.camera.displayDimensions = camera.dimensionsOnScreen(this.dimensions);
-    
+    this.camera.displayAngle = this.angle;
+    this.camera.displayPosition = this.position;
+    this.camera.displayDimensions = this.dimensions;
+    console.log(camera.absolutePosition());
+    console.log(camera.getMiddle());
+    console.log(camera.getDisplayMiddle())
     //console.log(camera.angleOnScreen(this.angle));
     this.camera.calculateZoomDimensions();
     

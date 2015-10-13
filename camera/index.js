@@ -45,10 +45,12 @@ Camera.prototype.update = function() {
   }
   if(input.keyStatus("W")){
     this.rotateAroundMiddle(0.01);
+    //this.rotateDisplayAroundMiddle(0.01);
     //this.rotate(0.01);
   }
   if(input.keyStatus("X")){
-    this.rotateAroundMiddle(-0.01);
+    this.rotateDisplayAroundMiddle(-0.01);
+    //this.rotateAroundMiddle(-0.01);
     //this.rotate(-0.01);
   }
   this.forEachUi(function(ui){
@@ -109,6 +111,24 @@ Camera.prototype.setOffset = function(offset) {
   
   return this;
 }
+Camera.prototype.setDisplayRotation = function(angle) {
+  this.displayAngle = angle;
+}
+
+Camera.prototype.rotateDisplay = function(angle) {
+  this.displayAngle += angle;
+}
+Camera.prototype.rotateDisplayAround = function(v, angle){
+  if(v instanceof Vector){
+    this.displayPosition.rotateAround(v, angle);
+  }
+  else{
+    this.displayPosition.rotateAround(v.position, angle);
+  }
+  this.rotateDisplay(angle);
+  
+  return this;
+}
 
 Camera.prototype.setRotation = function(rotation) {
   this.angle = rotation;
@@ -134,6 +154,12 @@ Camera.prototype.rotateAround = function(v, angle) {
   return this;
 }
 
+Camera.prototype.rotateDisplayAroundMiddle = function(angle) {
+  this.rotateDisplayAround(this.getDisplayMiddle(), angle);
+  
+  return this;
+}
+
 Camera.prototype.rotateAroundMiddle = function(angle) {
   this.rotateAround(this.getMiddle(), angle);
   
@@ -144,6 +170,11 @@ Camera.prototype.rotateAroundOrigin = function(angle) {
   this.rotateAround(new Vector(), angle);
   
   return this;
+}
+
+Camera.prototype.getDisplayMiddle = function(){
+ //console.log(this.displayDimensions.clone().scale(1/2).add(this.displayPosition).rotateAround(this.displayPosition, this.displayAngle)); //console.log(this.dimensions.clone().divide(2).add(this.absolutePosition()).rotateAround(this.absolutePosition(), this.angle));
+  return this.displayDimensions.clone().scale(1/2).add(this.displayPosition).rotateAround(this.displayPosition, this.displayAngle);
 }
 
 Camera.prototype.getMiddle = function(){
@@ -209,7 +240,7 @@ Camera.prototype.drawScene = function(scene) {
 }
 
 Camera.prototype.positionOnScreen = function(position) {
-  return position.clone().rotateAround(this.absolutePosition(), -this.angle ).sub(this.absolutePosition()).multiply(this.zoomDimensions).add(this.displayPosition).rotateAround(this.displayPosition, -this.displayAngle);
+  return position.clone().rotateAround(this.absolutePosition(), -this.angle ).sub(this.absolutePosition()).multiply(this.zoomDimensions).add(this.displayPosition).rotateAround(this.displayPosition, this.displayAngle);
 }
 
 Camera.prototype.dimensionsOnScreen = function(dimensions) {
@@ -217,7 +248,7 @@ Camera.prototype.dimensionsOnScreen = function(dimensions) {
 }
 
 Camera.prototype.angleOnScreen = function(angle) {
-  return angle - this.angle - this.displayAngle;
+  return angle - this.angle + this.displayAngle;
 }
 
 Camera.prototype.sizeOnScreen = function(size) {
@@ -274,14 +305,61 @@ Camera.prototype.drawTextOnCanvas = function(text, position, size, angle, font, 
   return this;
 }
 
-Camera.prototype.drawOnScreen = function(image, position, dimensions, angle) { 
+/**Camera.prototype.drawOnScreen = function(image, position, dimensions, angle) { 
   image.draw(this.positionOnScreen(position),this.dimensionsOnScreen(dimensions), this.angleOnScreen(angle));  
 
   return this;
+}**/
+
+Camera.prototype.startCamera = function(){
+  renderer.saveCanvas();
+    //return position.clone().rotateAround(this.absolutePosition(), -this.angle ).sub(this.absolutePosition()).multiply(this.zoomDimensions).add(this.displayPosition).rotateAround(this.displayPosition, this.displayAngle);
+  //renderer.setCanvasPosition(new Vector(-150,-150));
+  //renderer.rotateCanvas(-this.angle);
+  
+  //console.log(this.absolutePosition());
+  //renderer.moveCanvas(new Vector(0,324));
+  //renderer.moveCanvas(new Vector(0,324));
+  //renderer.moveCanvas(this.absolutePosition().clone().scale(-1));
+  //renderer.rotateCanvasAround(this.displayPosition, this.displayAngle);
+  //renderer.scaleCanvas(this.zoomDimensions);
+  //renderer.moveCanvas(this.absolutePosition().clone().scale(-1));
+   //renderer.moveCanvas(0, -(10000));
+  //renderer.rotateCanvasAround(new Vector(162,162), this.angle);
+  
+  //renderer.rotateCanvasAround(this.absolutePosition(), -this.angle);
+  //renderer.moveCanvas(this.displayPosition.clone().scale(-1));
+  
+  //renderer.rotateCanvasAround(this.displayPosition.clone(), -this.displayAngle);
+  
+  //renderer.moveCanvas(0, 300 + 72 * 2);
+  
+  
+  //renderer.scaleCanvas(this.scaleCanvas
+  //renderer.moveCanvas(new Vector(-150,-150));
+  //renderer.rotateCanvasAround(new Vector(150,150), -this.angle + this.displayAngle);
+  
+  //renderer.scaleCanvas(this.zoomDimensions);
+  //renderer.moveCanvas(this.absolutePosition().scale(-1).add(this.displayPosition.clone().scale(1/this.zoomDimensions.x, 1/this.zoomDimensions.y)))
+                      
+                      //.scale(this.zoomDimensions.x, this.zoomDimensions.y));
+  //console.log(this.zoomDimensions);                    
+                      //.scale(this.zoomDimensions));
+  /**renderer.rotateCanvas(this.displayAngle); renderer.moveCanvas(this.absolutePosition().scale(-1).scale(this.zoomDimensions).add(this.displayPosition));**/
+  //renderer.moveCanvas(this.absolutePosition().clone().scale(-1).add(this.displayPosition.clone().scale(1)));
+  return this;
+  
+}
+Camera.prototype.finishCamera = function(){
+  renderer.restoreCanvas();
+  
+  return this;
 }
 
-Camera.prototype.drawOnScreen = function(image, position, dimensions, angle) { 
-  image.draw(this.positionOnScreen(position),this.dimensionsOnScreen(dimensions), this.angleOnScreen(angle));  
+Camera.prototype.drawOnScreen = function(image, position, dimensions, angle) {
+  image.draw(this.positionOnScreen(position), this.dimensionsOnScreen(dimensions), this.angleOnScreen(angle));
+  //image.draw(position,dimensions, angle);  
+  // position.clone().rotateAround(this.absolutePosition(), -this.angle ).sub(this.absolutePosition()).multiply(this.zoomDimensions).add(this.displayPosition).rotateAround(this.displayPosition, -this.displayAngle);
 
   return this;
 }
