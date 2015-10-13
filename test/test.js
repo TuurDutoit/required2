@@ -86,8 +86,8 @@ events.on("collision", function(a, b, res, cancel) {
   var move = res.overlapV.clone().reverse();
   a.moveBy(move.x, move.y);
   cancel();
-  console.log("collision:", res.overlap);
 });
+
 
 
 input.mapKey(38, "up").mapKey(40, "down").mapKey(37, "left").mapKey(39, "right").mapKey(76, "+").mapKey(77, "-").mapKey(81, "Q").mapKey(83, "S").mapKey(68, "D").mapKey(90, "Z").mapKey(88, "X").mapKey(87, "W").mapKey(66, "B").mapKey(78, "N");

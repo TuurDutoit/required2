@@ -313,14 +313,13 @@ GameObject.prototype.setCollider = function(collider) {
   if(this._live) {
     if(this.collider) {
       this.collider.remove();
-      this.collider.setData(null);
     }
 
     collider.insert();
-    collider.setData(this);
   }
   
   this.collider = collider;
+  collider.setData(this);
   
   
   return this;
