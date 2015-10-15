@@ -24,6 +24,8 @@ var Ui = require("../ui");
 var Sprite = require("../sprite");
 var SpriteAnimation = require("../sprite-animation");
 var Crash = require("../colliders");
+var Goomba = require("../test/entities/goomba");
+var DeathBarrier = require("../death-barrier");
 
 loop.updateFps(60);
 Game = {
@@ -34,11 +36,11 @@ Game = {
       loop.stop();
     }
 }
-Play = new Player(new SpriteAnimation("Mario", [[new Vector(6 * 16, 0), new Vector(16, 32), 200], [new Vector(7 * 16, 0), new Vector(16, 32), 200] , [new Vector(8 * 16, 0), new Vector(16, 32), 200] , [new Vector(7 * 16, 0), new Vector(16, 32), 200]], true), new Vector(0,0), new Vector(36,72), 0);
+Play = new Player(new SpriteAnimation("Mario", [[new Vector(6 * 16, 0), new Vector(16, 32), 200], [new Vector(7 * 16, 0), new Vector(16, 32), 200] , [new Vector(8 * 16, 0), new Vector(16, 32), 200] , [new Vector(7 * 16, 0), new Vector(16, 32), 200]], true), new Vector(72, 324 - 72), new Vector(36,72), 0);
 leTestScene = new Scene();
 CAMOBJ = new GameObject(new Vector(0, 0), new Vector(), 0);
 //CAMERA = new Camera(new GameObject(), new Vector(), new Vector(324, 324), 0, new Vector(), new Vector(324, 324), 0, 1);
-CAMERA = new Camera(Play, new Vector(0,0), new Vector(324, 324), 0, new Vector(), new Vector(324, 324), 0, 1);
+CAMERA = new Camera(Play, new Vector(-36 * 2,-(324 - 2 * 72)), new Vector(324, 324), 0, new Vector(), new Vector(324, 324), 0, 1);
 CAMERAQ = new Camera(new GameObject(), new Vector(), new Vector(324, 324), 0, new Vector(0,0), new Vector(324, 324), 0, 1);
 CAMERA.appendChild(new Ui("BATMAN", new Vector(0, 0), 0));
 CAMERAB = new Camera(new GameObject(), new Vector(), new Vector(324, 324/2), 0, new Vector(0,324/2), new Vector(324, 324/2), 0, 1);
@@ -66,27 +68,39 @@ leTestScene.appendChild(TERRAIN);
 //camera, surroundingImage, position, dimensions, angle
 //leTestScene.appendChild(new CameraDisplayObject(CAMERAQ, new Image("icon"), new  Vector(0, 0), new Vector(100, 100), 0));
 //leTestScene.appendChild(new DrawableGameObject(new Image("Icon"), new  Vector(0, 0), new Vector(100, 100), 0));
-
+leTestScene.appendChild(new DeathBarrier(new Crash.Box(new Vector(0, 400), 1000, 72, true)));
 leTestScene.appendChild(new DrawableGameObject(new Sprite("Icon", new Vector(0,0), new Vector(16, 16)), new  Vector(0, 0), new Vector(100, 100), 0));
 
+var TinyGoomba = new Goomba(new Vector(300, 324 - 36), new Vector(36, 36), 0);
+
+leTestScene.appendChild(TinyGoomba);
 leTestScene.appendChild(Play);
 
 
 
-var leGameObject = new GameObject();
+/**var leGameObject = new GameObject();
 leGameObject.setCollider(new Crash.Box(new Vector(), 100, 100, true));
-leTestScene.appendChild(leGameObject);
+leTestScene.appendChild(leGameObject);**/
 
-var go = new GameObject();
+/**var go = new GameObject();
 go.setCollider(new Crash.Box(new Vector(50, 50), 100, 100));
-leTestScene.appendChild(go);
+leTestScene.appendChild(go);**/
 
 //console.log(go);
 
 events.on("collision", function(a, b, res, cancel) {
-  var move = res.overlapV.clone().reverse();
-  a.moveBy(move.x, move.y);
-  cancel();
+  //var move = res.overlapV.clone().reverse();
+  //a.moveBy(move.x, move.y);
+  if(a !== b || false) {
+    
+    b.data.onCollision(a, res, cancel);
+    res.overlapV.reverse();
+    a.data.onCollision(b, res, cancel);
+    //cancel();
+    
+
+
+  }
 });
 
 

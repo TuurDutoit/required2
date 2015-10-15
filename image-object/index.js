@@ -14,7 +14,7 @@ var imageObject = function(object, current, position, dimensions, angle) {
 imageObject.prototype.type = "imageObject";
 
 imageObject.prototype.draw = function(position, dimensions, angle) {
-  this.object[this.current].draw(position.clone().add(this.position), dimensions.clone().multiply(this.dimensions), angle + this.angle);
+  this.object[this.current].draw(position.clone().add(this.position), dimensions.clone().scale(this.dimensions), angle + this.angle);
   
   return this;
 }

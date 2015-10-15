@@ -11,6 +11,8 @@ var EmptyBlock = function() {
   this.dimensions = new Vector();
   this.angle = 0;
 
+  this.solid = false;
+  
   return this;
 }
 

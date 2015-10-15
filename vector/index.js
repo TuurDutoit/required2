@@ -28,14 +28,15 @@ Vector.prototype.rotateAroundOrigin = function(angle) {
   return this;
 }
 
-Vector.prototype.multiply = function(V){
-  if(typeof V === "number") {
-    this.x *= V;
-    this.y *= V;
+Vector.prototype.scale = Vector.prototype.multiply = function(x, y){
+  
+  if(typeof x === "number") {
+    this['x'] *= x;
+    this['y'] *= y || x;
   }
   else{
-    this.x *= V.x;
-    this.y *= V.y;
+    this['x'] *= x.x;
+    this['y'] *= x.y;
   }
   
   return this;

@@ -11,7 +11,8 @@ var Terrain = function(matrix, patches, position, angle){
   this.angle = angle || 0;
   this.blockSize = 36;
   this.appendPatches(patches);
-  this.convert();
+  
+  this.init();
   
   return this;
 }
@@ -73,6 +74,20 @@ Terrain.prototype.replaceBlock = function(index, block){
 }
 
 Terrain.prototype.init = function(){
+  this.convert();
+  
+  var self = this;
+  
+  self.forEachBlock(function(block, position){
+
+    //console.log(position.clone().add(self.position).scale(self.blockSize));
+    //console.log(position.clone().add(self.position).scale(36));
+    block.init(position.clone().add(self.position).scale(36, 36));
+    block._init();
+    //console.log(position.clone().add(self.position).scale(self.blockSize));
+    //console.log(block.collider);
+  });
+  
   return this;
 }
 
@@ -83,7 +98,7 @@ Terrain.prototype.update = function(){
 Terrain.prototype.draw = function(camera){
   var self = this; 
   this.forEachBlock(function(block, position){
-    block.draw(camera, position.add(self.position).multiply(self.blockSize), self.angle);
+    block.draw(camera, position.clone().add(self.position).multiply(self.blockSize), self.angle);
   });
   
   return this;

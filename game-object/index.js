@@ -2,6 +2,7 @@ var Vector = require("../vector");
 var EventEmitter = require("../event-emitter");
 var events = require("../events");
 var util = require("../util");
+var Crash = require("../colliders");
 
 var rmove = /^move:/;
 var rrotate = /^rotate:/;
@@ -52,13 +53,18 @@ GameObject.prototype.moveBy = GameObject.prototype.move = function(v, moveCollid
     this.collider.moveBy(v);
   }**/
   
+  this.collider.moveBy(v.x, v.y);
   this.position.add(v);
+  
   this.emit("move:by", [v]);
   
   return this;
 }
 
 GameObject.prototype.moveAlongAngle = function(v) {
+  
+  
+  this.collider.moveBy(v.clone().rotate(this.angle).x, v.clone().rotate(this.angle).y);
   this.position.add(v.clone().rotate(this.angle));
   
   return this;
@@ -173,7 +179,12 @@ GameObject.prototype.absoluteToRelativeAngle = function(angle) {
 }
 
 
-
+GameObject.prototype.setPhysics = function(physics){
+  physics.setObject(this);
+  this.physics = physics;
+  
+  return this;
+}
 
 GameObject.prototype.setParent = function(parent){ 
   this.parent = parent;
@@ -308,14 +319,21 @@ GameObject.prototype.forEachChild = function(cb) {
 
 
 
-
+GameObject.prototype.onCollision = function(collider, res, cancel) {
+  return this;
+}
 
 GameObject.prototype.setCollider = function(collider) {
+  
+  /**collider.pos.sub(new Vector(-1,-1));
+  collider.aabb.x2 += 2;
+  collider.aabb.y2 += 2;**/
+  
   if(this._live) {
     if(this.collider) {
       this.collider.remove();
     }
-
+    
     collider.insert();
   }
   
